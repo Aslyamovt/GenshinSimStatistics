@@ -1,4 +1,11 @@
-"""Пользовательский интерфейс приложения на Gradio."""
+"""Пользовательский интерфейс приложения на Gradio.
+
+Приложение «Genshin Sim Statistics» содержит две вкладки:
+  - «Genshin DPS Leaders» — таблица лидеров отрядов по урону (база Simpact);
+  - «Wfpsim database» — ведение локальной базы замеров урона из сервиса Wfpsim.
+
+Выбор языка (русский / английский) вынесен на уровень всего интерфейса.
+"""
 
 import base64
 import html
@@ -6,9 +13,17 @@ import html
 import gradio as gr
 
 from . import classifiers, config, downloader, filters, i18n, models, update
+from .classifier_ui import (
+    MAX_CLS_ROWS,
+    cls_n_pages as _cls_n_pages,
+    nav_updates as _nav_updates,
+    row_reset_updates as _row_reset_updates,
+    row_updates as _row_updates,
+)
 from .db import LocalDB
 from .downloader import SimpactDownloader
 from .objects_manager import ObjectsManager
+from .wfpsim import ui as wfpsim_ui
 
 APP_CSS = """
 /* Более тёмный фон элементов выпадающих списков для тёмной темы */
@@ -248,74 +263,8 @@ def build_teams_html(ldb, om, dl, filter_set, required, excluded, page, page_siz
 # Обработчики событий
 # ---------------------------------------------------------------------------
 
-MAX_CLS_ROWS = 15  # количество объектов классификатора на одной странице
-
-
-def _cls_n_pages(items, size):
-    return max(1, (len(items) + size - 1) // size)
-
-
-def _row_updates(cls_rows, items, page, dl, assign, selections=None):
-    """gr.update для строк классификации по указанной странице."""
-    selections = selections if selections is not None else {}
-    start = max(0, page) * len(cls_rows)
-    updates = []
-    for i, r in enumerate(cls_rows):
-        gi = start + i
-        if gi < len(items):
-            kind, name = items[gi]
-            img_path = (
-                dl.download_weapon(name)
-                if kind == "weapon"
-                else dl.download_avatar(name)
-            )
-            chosen = selections.get(gi)
-            dd_val = chosen if chosen else classifiers.recommended_list(kind)
-            updates.append(gr.update(visible=True))
-            updates.append(gr.update(value=str(img_path) if img_path else None))
-            updates.append(gr.update(value=name))
-            updates.append(
-                gr.update(
-                    choices=classifiers.choices_for(kind),
-                    value=dd_val,
-                )
-            )
-            assign[gi] = (kind, name)
-        else:
-            updates.append(gr.update(visible=False))
-            updates.append(gr.update(value=None))
-            updates.append(gr.update(value=""))
-            updates.append(gr.update(value=None))
-            assign.pop(gi, None)
-    return updates
-
-
-def _row_reset_updates(cls_rows, assign, selections=None):
-    updates = []
-    for _ in cls_rows:
-        updates.append(gr.update(visible=False))
-        updates.append(gr.update(value=None))
-        updates.append(gr.update(value=""))
-        updates.append(gr.update(value=None))
-    assign.clear()
-    if selections is not None:
-        selections.clear()
-    return updates
-
-
-def _nav_updates(items, page, size):
-    """gr.update для кнопок навигации и метки страницы."""
-    n_pages = _cls_n_pages(items, size)
-    page = min(max(0, page), n_pages - 1)
-    if n_pages > 1:
-        prev = gr.update(visible=True, interactive=page > 0)
-        nxt = gr.update(visible=True, interactive=page < n_pages - 1)
-    else:
-        prev = gr.update(visible=False)
-        nxt = gr.update(visible=False)
-    label = gr.update(value=i18n.t("nav_page", page=page + 1, pages=n_pages))
-    return prev, nxt, label, page
-
+# Вспомогательные функции панели классификации импортируются из classifier_ui:
+# MAX_CLS_ROWS, _cls_n_pages, _row_updates, _row_reset_updates, _nav_updates.
 
 def make_handlers(om, ldb, dl, cls_rows=None):
     """Возвращает словарь функций-обработчиков, замыкающих состояние."""
@@ -438,28 +387,18 @@ def make_handlers(om, ldb, dl, cls_rows=None):
 
 
 # ---------------------------------------------------------------------------
-# Построение интерфейса
+# Вкладка «Genshin DPS Leaders»
 # ---------------------------------------------------------------------------
 
-def build_demo():
-    om = ObjectsManager()
-    ldb = LocalDB()
-    dl = SimpactDownloader()
+def _build_dps_tab(om, ldb, dl, char_choices):
+    """Строит содержимое вкладки «Genshin DPS Leaders» и возвращает описатель вкладки.
 
-    char_choices = sorted(set(om.all_characters()))
-    lang_choices = [(i18n.LANG_LABELS[k], k) for k in i18n.LANGUAGES]
-
-    with gr.Blocks(title="Genshin DPS leaders", css=APP_CSS, theme=make_dark_theme()) as demo:
-        gr.Markdown("# ⚔️ Genshin DPS leaders")
-        subtitle = gr.Markdown(i18n.t("app_subtitle"))
-
+    Возвращаемый словарь содержит refresh/refresh_inputs/refresh_outputs,
+    lang_outputs/update_lang.
+    """
+    with gr.Column():
         with gr.Row():
             update_btn = gr.Button(i18n.t("update_btn"), variant="primary")
-            language = gr.Dropdown(
-                choices=lang_choices,
-                value=i18n.get_lang(),
-                label=i18n.t("language_label"),
-            )
         status = gr.Markdown(i18n.t("status_ready"))
 
         # Состояния двухэтапного обновления и пагинации классификатора
@@ -534,22 +473,20 @@ def build_demo():
         refresh_inputs = [filter_set, required, excluded, page, page_size]
         refresh_outputs = [teams_html, total_label]
 
-        # Компоненты, чьи подписи нужно обновить при смене языка
-        lang_label_outputs = [
-            subtitle, update_btn, status,
+        # Подписи компонентов, которые нужно обновить при смене языка
+        lang_outputs = [
+            update_btn, status,
             cls_heading, cls_description, apply_btn, cls_prev_btn, cls_next_btn,
             filter_set, page_size, required, excluded,
-            filters_heading, teams_heading, prev_btn, page, next_btn, language,
+            filters_heading, teams_heading, prev_btn, page, next_btn,
         ]
-        # Подписи всех строк классификатора
         for r in cls_rows:
-            lang_label_outputs.append(r["dd"])
+            lang_outputs.append(r["dd"])
 
-        def handle_language(lang):
-            """Переключает язык интерфейса и возвращает обновления подписей."""
+        def update_lang(lang):
+            """Возвращает обновления подписей вкладки при смене языка."""
             i18n.set_lang(lang)
             updates = [
-                gr.update(value=i18n.t("app_subtitle")),
                 gr.update(value=i18n.t("update_btn")),
                 gr.update(value=i18n.t("status_ready")),
                 gr.update(value=i18n.t("cls_heading")),
@@ -566,29 +503,22 @@ def build_demo():
                 gr.update(value=i18n.t("prev_btn")),
                 gr.update(label=i18n.t("page_label")),
                 gr.update(value=i18n.t("next_btn")),
-                gr.update(
-                    label=i18n.t("language_label"),
-                    choices=[(i18n.LANG_LABELS[k], k) for k in i18n.LANGUAGES],
-                    value=lang,
-                ),
             ]
             for _ in cls_rows:
                 updates.append(gr.update(label=i18n.t("cls_list_label")))
             return updates
 
-        # Первичное отображение
-        demo.load(
-            handlers["refresh"],
-            inputs=refresh_inputs,
-            outputs=refresh_outputs,
-        )
+        cls_outputs = []
+        for r in cls_rows:
+            cls_outputs += [r["row"], r["img"], r["name"], r["dd"]]
 
-        # Смена языка
-        language.change(
-            handle_language,
-            [language],
-            lang_label_outputs,
-        ).then(handlers["refresh"], refresh_inputs, refresh_outputs)
+        cls_full_outputs = cls_outputs + [
+            cls_prev_btn, cls_next_btn, cls_nav_label,
+            apply_btn, cls_items, cls_page, raw_state, status, unknown_group,
+        ]
+        cls_nav_outputs = cls_outputs + [
+            cls_prev_btn, cls_next_btn, cls_nav_label, cls_page,
+        ]
 
         # Фильтры
         filter_set.change(handlers["refresh"], refresh_inputs, refresh_outputs)
@@ -602,18 +532,6 @@ def build_demo():
             .then(handlers["refresh"], refresh_inputs, refresh_outputs)
         next_btn.click(lambda p: int(p or 1) + 1, [page], [page]) \
             .then(handlers["refresh"], refresh_inputs, refresh_outputs)
-
-        cls_outputs = []
-        for r in cls_rows:
-            cls_outputs += [r["row"], r["img"], r["name"], r["dd"]]
-
-        cls_full_outputs = cls_outputs + [
-            cls_prev_btn, cls_next_btn, cls_nav_label,
-            apply_btn, cls_items, cls_page, raw_state, status, unknown_group,
-        ]
-        cls_nav_outputs = cls_outputs + [
-            cls_prev_btn, cls_next_btn, cls_nav_label, cls_page,
-        ]
 
         # Обновление базы: сначала показываем явный индикатор начала,
         # затем запускаем длительную операцию и перерисовываем список.
@@ -654,5 +572,72 @@ def build_demo():
                 inputs=[r["dd"], cls_items, cls_page],
                 outputs=[r["dd"]],
             )
+
+    return {
+        "refresh": handlers["refresh"],
+        "refresh_inputs": refresh_inputs,
+        "refresh_outputs": refresh_outputs,
+        "lang_outputs": lang_outputs,
+        "update_lang": update_lang,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Построение интерфейса
+# ---------------------------------------------------------------------------
+
+def build_demo():
+    om = ObjectsManager()
+    ldb = LocalDB()
+    dl = SimpactDownloader()
+
+    char_choices = sorted(set(om.all_characters()))
+    lang_choices = [(i18n.LANG_LABELS[k], k) for k in i18n.LANGUAGES]
+
+    with gr.Blocks(title=config.APP_NAME, css=APP_CSS, theme=make_dark_theme()) as demo:
+        gr.Markdown("# ⚙️ " + i18n.t("app_title"))
+        subtitle = gr.Markdown(i18n.t("app_subtitle"))
+
+        # Общий выбор языка для всего интерфейса (обе вкладки)
+        language = gr.Dropdown(
+            choices=lang_choices,
+            value=i18n.get_lang(),
+            label=i18n.t("language_label"),
+        )
+
+        with gr.Tabs():
+            with gr.Tab(i18n.t("tab_dps")):
+                dps_tab = _build_dps_tab(om, ldb, dl, char_choices)
+            with gr.Tab(i18n.t("tab_wfpsim")):
+                wf_tab = wfpsim_ui.build_wfpsim_tab(om)
+
+        # Первичное построение обеих вкладок
+        demo.load(
+            dps_tab["refresh"], dps_tab["refresh_inputs"], dps_tab["refresh_outputs"]
+        )
+        demo.load(
+            wf_tab["refresh"], wf_tab["refresh_inputs"], wf_tab["refresh_outputs"]
+        )
+
+        # Смена языка (общий выбор для всего интерфейса)
+        lang_outputs = [subtitle] + dps_tab["lang_outputs"] + wf_tab["lang_outputs"]
+
+        def handle_language(lang):
+            """Переключает язык и возвращает обновления подписей обеих вкладок."""
+            i18n.set_lang(lang)
+            updates = [gr.update(value=i18n.t("app_subtitle"))]
+            updates += dps_tab["update_lang"](lang)
+            updates += wf_tab["update_lang"](lang)
+            return updates
+
+        language.change(
+            handle_language,
+            [language],
+            lang_outputs,
+        ).then(
+            dps_tab["refresh"], dps_tab["refresh_inputs"], dps_tab["refresh_outputs"]
+        ).then(
+            wf_tab["refresh"], wf_tab["refresh_inputs"], wf_tab["refresh_outputs"]
+        )
 
     return demo

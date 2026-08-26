@@ -221,5 +221,8 @@ __marimo__/
 plans/
 
 # Servise cache files
-cache/
+cache/artifacts/
+cache/avatars/
+cache/weapons/
+cache/local_db.json
 simpact_example.json
