@@ -50,6 +50,33 @@ from Simpact. If characters or weapons that are missing from the classification 
 `objects.json` are found, a classification panel opens — select a list for each object
 and press “Apply classification and continue”.
 
+## Building the executable
+
+To build a standalone Windows `.exe` (onefile), run:
+
+```bash
+pip install -r requirements.txt
+python build.py
+```
+
+or, on Windows, simply:
+
+```bat
+build.bat
+```
+
+The script uses [PyInstaller](https://pyinstaller.org/) (installed automatically if missing)
+and:
+
+- builds the executable into the repository root folder as `GenshinDpsLeaders.exe`;
+- ensures the runtime data needed to launch the service (`objects.json`, `README.md`,
+  `LICENSE`) are present next to the `.exe`;
+- removes build auxiliary artifacts (the `build/` and `dist/` folders and the generated
+  `.spec` file).
+
+Run the built `GenshinDpsLeaders.exe`. The app creates the `cache/` directory and the
+local database next to the executable and opens the Gradio interface in the browser.
+
 ## Structure
 
 ```

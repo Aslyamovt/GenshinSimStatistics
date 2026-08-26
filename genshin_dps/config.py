@@ -1,9 +1,23 @@
 """Конфигурация приложения Genshin DPS leaders: пути, URL, константы."""
 
+import sys
 from pathlib import Path
 
-# Корень проекта (папка, содержащая пакет genshin_dps)
-BASE_DIR = Path(__file__).resolve().parent.parent
+
+def _base_dir() -> Path:
+    """Корневая директория приложения.
+
+    При запуске из исходников это папка, содержащая пакет ``genshin_dps``.
+    При запуске собранного .exe — директория, в которой лежит исполняемый файл
+    (туда кладутся ``objects.json``, кэш и прочие данные).
+    """
+    if getattr(sys, "frozen", False):  # PyInstaller onefile
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent.parent
+
+
+# Корень проекта (папка, содержащая пакет genshin_dps или сам .exe)
+BASE_DIR = _base_dir()
 
 # --- Пути к кэшу и файлам ---
 CACHE_DIR = BASE_DIR / "cache"
