@@ -31,6 +31,11 @@ REQUEST_TIMEOUT = 60
 DOWNLOAD_TIMEOUT = 30
 PAGE_DELAY = 0.3  # задержка между запросами к API, сек
 
+# --- Правила отбора записей ---
+# Минимальная средняя длина замера (sim_duration.mean) в секундах.
+# Записи со средней длиной <= этого значения отбраковываются.
+MIN_SIM_DURATION = 47.0
+
 # --- Ключи списков в objects.json ---
 CHARACTER_LISTS = [
     "new_event_leg_names_list",

@@ -5,7 +5,7 @@ import html
 
 import gradio as gr
 
-from . import classifiers, config, downloader, filters, models, update
+from . import classifiers, config, downloader, filters, i18n, models, update
 from .db import LocalDB
 from .downloader import SimpactDownloader
 from .objects_manager import ObjectsManager
@@ -28,7 +28,8 @@ APP_CSS = """
     color: #ffffff !important;
 }
 /* Белая обводка по контуру непрозрачной части изображения (не всего квадрата):
-   drop-shadow следует альфа-каналу, поэтому обводка идёт по периметру иконки. */
+   drop-shadow следует альфа-каналу, поэтому обводка идёт по периметру иконки.
+   Применяется только к иконкам оружия. */
 .icon-outline {
     filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.9))
             drop-shadow(1px 0 0 rgba(255, 255, 255, 0.9))
@@ -86,6 +87,8 @@ def record_card_html(record, dl: SimpactDownloader) -> str:
     link = config.GCSIM_DB_URL.format(record_id=record.get("_id", ""))
     dps_str = format_dps(record.get("mean_dps_per_target", 0))
     team_names = " · ".join(html.escape(m.get("name", "")) for m in record.get("team", []))
+    more_link = i18n.t("link_more")
+    art_title = i18n.t("art_title")
 
     card = [
         '<div style="border:1px solid #3f3f46;border-radius:10px;padding:14px;'
@@ -93,7 +96,7 @@ def record_card_html(record, dl: SimpactDownloader) -> str:
         '<div style="display:flex;justify-content:space-between;align-items:center;">',
         f'<div style="font-size:22px;font-weight:bold;color:#5aa2e6;">DPS: {dps_str}</div>',
         f'<a href="{link}" target="_blank" style="text-decoration:none;background:#1f6fb2;'
-        'color:#fff;padding:8px 14px;border-radius:6px;">Подробнее на gcsim</a>',
+        f'color:#fff;padding:8px 14px;border-radius:6px;">{more_link}</a>',
         '</div>',
         f'<div style="color:#9a9a9a;margin:6px 0;">{team_names}</div>',
     ]
@@ -136,12 +139,13 @@ def record_card_html(record, dl: SimpactDownloader) -> str:
         badges += '</div>'
         avatar_box += badges
 
-        # Иконка набора артефактов снизу-слева (поверх аватара)
+        # Иконка набора артефактов снизу-слева (поверх аватара).
+        # Белая обводка по контуру изображения есть, а квадратной рамки нет.
         if art_srcs:
             arts = "".join(
-                f'<img src="{s}" class="icon-outline" style="width:44px;height:44px;'
-                'object-fit:cover;border:1px solid #555;border-radius:4px;'
-                'margin:1px;" title="Сет">'
+                f'<img src="{s}" class="icon-outline" '
+                f'style="width:44px;height:44px;object-fit:cover;margin:1px;" '
+                f'title="{art_title}">'
                 for s in art_srcs[:2]
             )
             avatar_box += (
@@ -164,7 +168,7 @@ def record_card_html(record, dl: SimpactDownloader) -> str:
         cell += '</div>'
         card.append(cell)
 
-    # Задача 3: комментарий к замеру между иконками и кнопкой
+    # Комментарий к замеру между иконками и кнопкой
     desc = (record.get("description") or "").strip()
     if desc:
         card.append(
@@ -177,13 +181,33 @@ def record_card_html(record, dl: SimpactDownloader) -> str:
     return "".join(card)
 
 
+# Внутренние идентификаторы наборов фильтров (значения выпадающего списка).
+# Отображаемые названия локализованы через i18n и зависят от выбранного языка.
+FILTER_ALL = "all"
+FILTER_KQMS = "kqms"
+FILTER_KQMS_SELECTOR = "kqms_selector"
+FILTER_FTP = "ftp"
+
+
+def filter_choices() -> list:
+    """Локализованные варианты набора фильтров для выпадающего списка."""
+    return [
+        (i18n.t("filter_all"), FILTER_ALL),
+        (i18n.t("filter_kqms"), FILTER_KQMS),
+        (i18n.t("filter_kqms_selector"), FILTER_KQMS_SELECTOR),
+        (i18n.t("filter_ftp"), FILTER_FTP),
+    ]
+
+
 def filter_records(ldb, om, filter_set, required, excluded):
     """Возвращает записи базы с учётом набора фильтров и персонажей."""
     records = ldb.sorted_records()
-    if filter_set == "KQMS":
+    if filter_set == FILTER_KQMS:
         records = [r for r in records if r.get("flags", {}).get("kqms")]
-    elif filter_set == "KQMS с селектором":
+    elif filter_set == FILTER_KQMS_SELECTOR:
         records = [r for r in records if r.get("flags", {}).get("kqms_selector")]
+    elif filter_set == FILTER_FTP:
+        records = [r for r in records if r.get("flags", {}).get("ftp")]
 
     req = {x.lower() for x in (required or [])}
     exc = {x.lower() for x in (excluded or [])}
@@ -207,16 +231,17 @@ def build_teams_html(ldb, om, dl, filter_set, required, excluded, page, page_siz
     size = int(page_size)
     start = (page - 1) * size
     page_records = records[start:start + size]
+    pages = max(1, (total + size - 1) // size)
 
-    parts = [
-        f'<div style="color:#888;margin:6px 0;">Всего отрядов: {total} · страница {page}'
-        f' из {max(1, (total + size - 1) // size)}</div>'
-    ]
+    header = i18n.t("total_teams", total=total, page=page, pages=pages)
+    parts = [f'<div style="color:#888;margin:6px 0;">{header}</div>']
     if not page_records:
-        parts.append('<div style="color:#999;padding:20px;">Нет отрядов, соответствующих фильтрам.</div>')
+        parts.append(
+            '<div style="color:#999;padding:20px;">' + i18n.t("no_teams") + '</div>'
+        )
     else:
         parts.extend(record_card_html(r, dl) for r in page_records)
-    return "".join(parts), f"Всего отрядов: {total}"
+    return "".join(parts), i18n.t("total_label", total=total)
 
 
 # ---------------------------------------------------------------------------
@@ -288,7 +313,7 @@ def _nav_updates(items, page, size):
     else:
         prev = gr.update(visible=False)
         nxt = gr.update(visible=False)
-    label = gr.update(value=f"Стр. {page + 1} из {n_pages}")
+    label = gr.update(value=i18n.t("nav_page", page=page + 1, pages=n_pages))
     return prev, nxt, label, page
 
 
@@ -309,10 +334,12 @@ def make_handlers(om, ldb, dl, cls_rows=None):
             stats = update.finalize_phase(
                 raw, om, ldb, dl, {}, {}, progress=progress
             )
-            msg = (
-                f"Обновление завершено: выгружено {stats['total_fetched']}, "
-                f"в базу добавлено/обновлено {stats['merged']}, "
-                f"пропущено {stats['skipped']}. Всего в базе: {stats['total_in_db']}."
+            msg = i18n.t(
+                "update_done",
+                fetched=stats["total_fetched"],
+                merged=stats["merged"],
+                skipped=stats["skipped"],
+                total=stats["total_in_db"],
             )
             row_u = _row_reset_updates(cls_rows, cls_assign, cls_map)
             tail = [
@@ -328,10 +355,7 @@ def make_handlers(om, ldb, dl, cls_rows=None):
         items = collector.items()
         row_u = _row_updates(cls_rows, items, 0, dl, cls_assign, cls_map)
         prev, nxt, label, _ = _nav_updates(items, 0, size)
-        msg = (
-            f"Выгружено {total} записей. Обнаружены неизвестные объекты — "
-            "укажите список классификации для каждого и нажмите «Применить»."
-        )
+        msg = i18n.t("fetched_unknown", total=total)
         tail = [
             prev, nxt, label,
             gr.update(visible=True),       # apply_btn
@@ -373,10 +397,12 @@ def make_handlers(om, ldb, dl, cls_rows=None):
         stats = update.finalize_phase(
             args[size + 2], om, ldb, dl, char_map, weapon_map, progress=progress
         )
-        msg = (
-            f"Обновление завершено: выгружено {stats['total_fetched']}, "
-            f"в базу добавлено/обновлено {stats['merged']}, "
-            f"пропущено {stats['skipped']}. Всего в базе: {stats['total_in_db']}."
+        msg = i18n.t(
+            "update_done",
+            fetched=stats["total_fetched"],
+            merged=stats["merged"],
+            skipped=stats["skipped"],
+            total=stats["total_in_db"],
         )
         row_u = _row_reset_updates(cls_rows, cls_assign, cls_map)
         tail = [
@@ -421,17 +447,20 @@ def build_demo():
     dl = SimpactDownloader()
 
     char_choices = sorted(set(om.all_characters()))
-    filter_choices = ["Все отряды", "KQMS", "KQMS с селектором"]
+    lang_choices = [(i18n.LANG_LABELS[k], k) for k in i18n.LANGUAGES]
 
     with gr.Blocks(title="Genshin DPS leaders", css=APP_CSS, theme=make_dark_theme()) as demo:
         gr.Markdown("# ⚔️ Genshin DPS leaders")
-        gr.Markdown(
-            "Таблица лидеров отрядов по урону. Данные обновляются из базы Simpact."
-        )
+        subtitle = gr.Markdown(i18n.t("app_subtitle"))
 
         with gr.Row():
-            update_btn = gr.Button("Обновить локальную базу", variant="primary")
-        status = gr.Markdown("Локальная база готова.")
+            update_btn = gr.Button(i18n.t("update_btn"), variant="primary")
+            language = gr.Dropdown(
+                choices=lang_choices,
+                value=i18n.get_lang(),
+                label=i18n.t("language_label"),
+            )
+        status = gr.Markdown(i18n.t("status_ready"))
 
         # Состояния двухэтапного обновления и пагинации классификатора
         raw_state = gr.State([])
@@ -440,11 +469,8 @@ def build_demo():
 
         # Панель классификации неизвестных объектов
         with gr.Column(visible=False) as unknown_group:
-            gr.Markdown("### Классификация неизвестных объектов")
-            gr.Markdown(
-                "Для каждого объекта выберите список классификации из выпадающего "
-                "меню и нажмите «Применить». Для оружия показывается его изображение."
-            )
+            cls_heading = gr.Markdown(i18n.t("cls_heading"))
+            cls_description = gr.Markdown(i18n.t("cls_description"))
             cls_rows = []
             for _ in range(MAX_CLS_ROWS):
                 with gr.Row(visible=False) as row:
@@ -458,55 +484,97 @@ def build_demo():
                     dd = gr.Dropdown(
                         choices=config.ALL_LISTS,
                         interactive=True,
-                        label="Список",
+                        label=i18n.t("cls_list_label"),
                     )
                 cls_rows.append({"row": row, "img": img, "name": name, "dd": dd})
             with gr.Row():
-                cls_prev_btn = gr.Button("◀ Пред.", visible=False, size="sm")
+                cls_prev_btn = gr.Button(i18n.t("cls_prev"), visible=False, size="sm")
                 cls_nav_label = gr.Markdown("", elem_id="cls_nav")
-                cls_next_btn = gr.Button("След. ▶", visible=False, size="sm")
+                cls_next_btn = gr.Button(i18n.t("cls_next"), visible=False, size="sm")
             apply_btn = gr.Button(
-                "Применить классификацию и продолжить", visible=False
+                i18n.t("cls_apply"), visible=False
             )
 
         # Обработчики зависят от динамически созданных строк классификации
         handlers = make_handlers(om, ldb, dl, cls_rows)
 
-        gr.Markdown("### Фильтры")
+        filters_heading = gr.Markdown(i18n.t("filters_heading"))
         with gr.Row():
             filter_set = gr.Dropdown(
-                choices=filter_choices,
-                value="Все отряды",
-                label="Набор фильтров",
+                choices=filter_choices(),
+                value=FILTER_ALL,
+                label=i18n.t("filter_set_label"),
             )
             page_size = gr.Dropdown(
                 choices=[10, 20, 50],
                 value=10,
-                label="Отрядов на странице",
+                label=i18n.t("page_size_label"),
             )
         with gr.Row():
             required = gr.Dropdown(
                 choices=char_choices,
                 multiselect=True,
-                label="Обязательные персонажи (все должны быть в отряде)",
+                label=i18n.t("required_label"),
             )
             excluded = gr.Dropdown(
                 choices=char_choices,
                 multiselect=True,
-                label="Исключённые персонажи (ни один не должен встречаться)",
+                label=i18n.t("excluded_label"),
             )
 
-        gr.Markdown("### Отряды")
+        teams_heading = gr.Markdown(i18n.t("teams_heading"))
         teams_html = gr.HTML()
         total_label = gr.Markdown("")
 
         with gr.Row():
-            prev_btn = gr.Button("◀ Назад")
-            page = gr.Number(value=1, precision=0, label="Страница")
-            next_btn = gr.Button("Вперёд ▶")
+            prev_btn = gr.Button(i18n.t("prev_btn"))
+            page = gr.Number(value=1, precision=0, label=i18n.t("page_label"))
+            next_btn = gr.Button(i18n.t("next_btn"))
 
         refresh_inputs = [filter_set, required, excluded, page, page_size]
         refresh_outputs = [teams_html, total_label]
+
+        # Компоненты, чьи подписи нужно обновить при смене языка
+        lang_label_outputs = [
+            subtitle, update_btn, status,
+            cls_heading, cls_description, apply_btn, cls_prev_btn, cls_next_btn,
+            filter_set, page_size, required, excluded,
+            filters_heading, teams_heading, prev_btn, page, next_btn, language,
+        ]
+        # Подписи всех строк классификатора
+        for r in cls_rows:
+            lang_label_outputs.append(r["dd"])
+
+        def handle_language(lang):
+            """Переключает язык интерфейса и возвращает обновления подписей."""
+            i18n.set_lang(lang)
+            updates = [
+                gr.update(value=i18n.t("app_subtitle")),
+                gr.update(value=i18n.t("update_btn")),
+                gr.update(value=i18n.t("status_ready")),
+                gr.update(value=i18n.t("cls_heading")),
+                gr.update(value=i18n.t("cls_description")),
+                gr.update(value=i18n.t("cls_apply")),
+                gr.update(value=i18n.t("cls_prev")),
+                gr.update(value=i18n.t("cls_next")),
+                gr.update(label=i18n.t("filter_set_label"), choices=filter_choices()),
+                gr.update(label=i18n.t("page_size_label")),
+                gr.update(label=i18n.t("required_label")),
+                gr.update(label=i18n.t("excluded_label")),
+                gr.update(value=i18n.t("filters_heading")),
+                gr.update(value=i18n.t("teams_heading")),
+                gr.update(value=i18n.t("prev_btn")),
+                gr.update(label=i18n.t("page_label")),
+                gr.update(value=i18n.t("next_btn")),
+                gr.update(
+                    label=i18n.t("language_label"),
+                    choices=[(i18n.LANG_LABELS[k], k) for k in i18n.LANGUAGES],
+                    value=lang,
+                ),
+            ]
+            for _ in cls_rows:
+                updates.append(gr.update(label=i18n.t("cls_list_label")))
+            return updates
 
         # Первичное отображение
         demo.load(
@@ -514,6 +582,13 @@ def build_demo():
             inputs=refresh_inputs,
             outputs=refresh_outputs,
         )
+
+        # Смена языка
+        language.change(
+            handle_language,
+            [language],
+            lang_label_outputs,
+        ).then(handlers["refresh"], refresh_inputs, refresh_outputs)
 
         # Фильтры
         filter_set.change(handlers["refresh"], refresh_inputs, refresh_outputs)
@@ -540,12 +615,21 @@ def build_demo():
             cls_prev_btn, cls_next_btn, cls_nav_label, cls_page,
         ]
 
-        # Обновление базы
+        # Обновление базы: сначала показываем явный индикатор начала,
+        # затем запускаем длительную операцию и перерисовываем список.
         update_btn.click(
+            lambda: gr.update(value=i18n.t("update_started")),
+            [],
+            [status],
+        ).then(
             handlers["update"],
             inputs=refresh_inputs,
             outputs=cls_full_outputs,
-        ).then(handlers["refresh"], refresh_inputs, refresh_outputs)
+        ).then(
+            handlers["refresh"],
+            refresh_inputs,
+            refresh_outputs,
+        )
 
         # Навигация по страницам классификатора
         cls_prev_btn.click(

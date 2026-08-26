@@ -1,67 +1,71 @@
 # ⚔️ Genshin DPS leaders
 
-Приложение на **Python + Gradio**, которое выводит список отрядов игры *Genshin Impact*,
-отсортированный по урону в секунду (DPS), с возможностью фильтрации списка.
+A **Python + Gradio** application that displays a list of *Genshin Impact* teams
+sorted by damage per second (DPS), with list filtering support.
 
-Данные о замерах урона загружаются из базы [Simpact](https://simpact.app).
+Damage measurement data is fetched from the [Simpact](https://simpact.app) database.
 
-## Возможности
+## Features
 
-- Итеративная выгрузка всех замеров из базы Simpact (`skip` увеличивается на 100,
-  пока в ответе не придёт меньше 100 записей).
-- Автоматическая фильтрация записей по правилам:
-  1. запрещено оружие из `leg_weapons_list`;
-  2. персонажи из `new_event_leg_names_list` с `cons > 0` — запрещены;
-  3. персонажи из `old_event_leg_names_list` с `cons > 1` — запрещены;
-  4. персонажи из `standart_leg_names_list` с `cons > 4` — запрещены;
-  5. персонажи уровня не 90 — запрещены;
-  6. отряды менее чем из 4 персонажей — запрещены;
-  7. персонажи без поля `sets` — запрещены.
-- Классификация неизвестных персонажей и оружия (добавление в `objects.json`).
-- Локальная база `cache/local_db.json` с дедупликацией по составу отряда
-  (обновление по `_id`, при совпадении состава сохраняется запись с большим уроном).
-- Скачивание изображений аватаров, оружия и наборов артефактов в локальный кэш.
-- Наборы фильтров: **Все отряды**, **KQMS**, **KQMS с селектором**.
-- Фильтры по персонажам: обязательные и исключённые.
-- Карточки отрядов с DPS, изображениями и ссылкой на подробности в gcsim.
-- Пагинация списка (10/20/50 отрядов на страницу).
+- Iterative fetch of all measurements from the Simpact database (`skip` increases
+  by 100 until fewer than 100 records are returned).
+- Automatic filtering of records by rules:
+  1. weapons from `leg_weapons_list` are forbidden;
+  2. characters from `new_event_leg_names_list` with `cons > 0` are forbidden;
+  3. characters from `old_event_leg_names_list` with `cons > 1` are forbidden;
+  4. characters from `standart_leg_names_list` with `cons > 4` are forbidden;
+  5. characters with level other than 90 are forbidden;
+  6. teams with fewer than 4 characters are forbidden;
+  7. characters without the `sets` field are forbidden.
+- Classification of unknown characters and weapons (adding them to `objects.json`).
+- Local database `cache/local_db.json` with deduplication by team composition
+  (updates by `_id`; on matching composition, the record with higher damage is kept).
+  Composition includes each character's `cons`, so records with the same characters
+  but different `cons` values are considered distinct.
+- Downloading of avatar, weapon, and artifact set images into a local cache.
+- Filter sets: **All teams**, **KQMS**, **KQMS with selector**, **FTP**.
+- Character filters: required and excluded.
+- Team cards with DPS, images, and a link to details on gcsim.
+- Pagination of the list (10/20/50 teams per page).
+- Language selector: **Russian** and **English**.
 
-## Установка
+## Installation
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Запуск
+## Running
 
 ```bash
 python app.py
 ```
 
-После запуска откройте адрес, указанный в консоли (по умолчанию `http://127.0.0.1:7860`).
+After launching, open the address shown in the console (default `http://127.0.0.1:7860`).
 
-## Обновление данных
+## Updating data
 
-Нажмите кнопку **«Обновить локальную базу»**. Приложение выгрузит все замеры из Simpact.
-Если встретятся персонажи или оружие, отсутствующие в классификационных списках
-`objects.json`, откроется панель классификации — укажите список для каждого объекта
-и нажмите «Применить классификацию и продолжить».
+Press the **“Update local database”** button. The application will fetch all measurements
+from Simpact. If characters or weapons that are missing from the classification lists in
+`objects.json` are found, a classification panel opens — select a list for each object
+and press “Apply classification and continue”.
 
-## Структура
+## Structure
 
 ```
-app.py                        # точка входа
+app.py                        # entry point
 genshin_dps/
-  config.py                   # пути, URL, константы
+  config.py                   # paths, URLs, constants
   objects_manager.py          # objects.json
-  models.py                   # модели/преобразования записей
-  db.py                       # локальная база + merge
-  downloader.py               # выгрузка из API и скачивание ассетов
-  filters.py                  # правила отбора и флаги KQMS
-  classifiers.py              # классификация неизвестных
-  update.py                   # оркестрация обновления
-  ui.py                       # интерфейс Gradio
-cache/                        # локальная база и изображения
+  models.py                   # models/record transformations
+  db.py                       # local database + merge
+  downloader.py               # API fetch and asset download
+  filters.py                  # selection rules and KQMS/FTP flags
+  classifiers.py              # classification of unknowns
+  update.py                   # update orchestration
+  i18n.py                     # interface localization (RU/EN)
+  ui.py                       # Gradio interface
+cache/                        # local database and images
   local_db.json
   avatars/  weapons/  artifacts/
-objects.json                  # классификационные списки
+objects.json                  # classification lists

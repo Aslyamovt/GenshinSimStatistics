@@ -1,6 +1,6 @@
 """Оркестрация полного обновления локальной базы из Simpact."""
 
-from . import classifiers, downloader, filters, models
+from . import classifiers, downloader, filters, i18n, models
 
 
 def fetch_phase(dl, om, progress=None):
@@ -15,7 +15,7 @@ def fetch_phase(dl, om, progress=None):
         if progress is not None:
             # Количество страниц заранее неизвестно — используем неопределённый
             # индикатор прогресса (индекс + None для общего числа шагов).
-            progress((1, None), f"Выгрузка страницы skip={skip}...")
+            progress((1, None), i18n.t("progress_fetch", skip=skip))
         for rec in data:
             collector.scan_record(rec)
             raw.append(rec)
@@ -37,7 +37,7 @@ def finalize_phase(raw, om, ldb, dl, char_map=None, weapon_map=None,
     n = max(len(raw), 1)
     for i, rec in enumerate(raw):
         if progress is not None:
-            progress(i / n, "Фильтрация и обновление локальной базы...")
+            progress(i / n, i18n.t("progress_filter"))
         if filters.is_allowed(rec, om):
             record = models.team_to_record(rec)
             record["flags"] = filters.compute_flags(record["team"], om)
@@ -51,7 +51,7 @@ def finalize_phase(raw, om, ldb, dl, char_map=None, weapon_map=None,
     m = max(total_records, 1)
     for i, rec in enumerate(ldb.records):
         if progress is not None:
-            progress(i / m, "Скачивание изображений...")
+            progress(i / m, i18n.t("progress_download"))
         downloader.download_record_assets(dl, rec, force=force_assets)
 
     return {
