@@ -1,0 +1,86 @@
+[
+  {
+    "_id": "125b5d43-0a46-4a58-9f95-85d08bddc65d",
+    "mean_dps_per_target": 167836.92144130557,
+    "names": [
+      "columbina",
+      "illuga",
+      "linnea",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "columbina",
+        0
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "linnea",
+        0
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "linnea",
+        "cons": 0,
+        "level": 80,
+        "weapon": {
+          "name": "thestringless",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 80,
+        "weapon": {
+          "name": "kitaincrossspear",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\nlinnea char lvl=80/90 cons=0 talent=9,9,9;\r\nlinnea add set=\"aubadeofmorningstarandmoon\" count=4;\r\nlinnea add weapon=\"stringless\" refine=5 lvl=90/90;\r\n//linnea add stats def=1542 hp=4780 atk=346 er=0.408 em=147 cr=0.494 cd=0.428;\r\nlinnea add stats hp=4780 atk=311 def%=0.583*2 cr=0.311;\r\nlinnea add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*10 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\n//columbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\n\r\nilluga char lvl=80/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n//illuga add set=\"gd\" count=2;\r\n//illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*3;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*7 er=0.0551*9 em=19.82*6 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive linnea;\r\nfor let i=0; i<6; i=i+1 {\r\n  linnea skill;\r\n  \r\n  columbina skill;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  illuga skill, burst;\r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;  \r\n  \r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-26T20:42:09",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/125b5d43-0a46-4a58-9f95-85d08bddc65d"
+  }
+]

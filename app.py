@@ -1,4 +1,4 @@
-"""Точка входа приложения Genshin DPS leaders."""
+"""Точка входа приложения Genshin Sim Statistics."""
 
 from genshin_dps import config
 from genshin_dps.ui import build_demo

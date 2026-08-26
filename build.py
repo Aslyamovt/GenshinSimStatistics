@@ -1,8 +1,8 @@
-"""Сборка исполняемого файла (.exe) сервиса Genshin DPS leaders.
+"""Сборка исполняемого файла (.exe) сервиса Genshin Sim Statistics.
 
 Использует PyInstaller в режиме onefile (консольный вариант, чтобы uvicorn/gradio
 могли писать логи и корректно настраивать форматтеры). После сборки:
-  - итоговый ``GenshinDpsLeaders.exe`` кладётся в корневую папку репозитория;
+  - итоговый ``GenshinSimStatistics.exe`` кладётся в корневую папку репозитория;
   - данные, необходимые для запуска (objects.json, README.md, LICENSE),
     находятся в корне рядом с .exe;
   - служебные артефакты сборки (папки build/ и dist/, файл *.spec) удаляются.
@@ -20,10 +20,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-APP_NAME = "GenshinDpsLeaders"
+APP_NAME = "GenshinSimStatistics"
 
 # Данные, которые должны лежать рядом с исполняемым файлом при запуске.
+# objects.json хранится в cache/; перед сборкой его копия размещается рядом с .exe,
+# чтобы при первом запуске приложение заполнило cache/objects.json (см. config).
 RUNTIME_DATA = ["objects.json", "README.md", "LICENSE"]
+
+# Источник классификационных списков для копирования рядом с .exe.
+OBJECTS_SOURCE = ROOT / "cache" / "objects.json"
 
 # Служебные папки PyInstaller
 WORK_DIR = ROOT / "build"
@@ -85,6 +90,14 @@ def _run_pyinstaller() -> None:
 
 def _ensure_runtime_data() -> None:
     """Гарантирует наличие данных для запуска рядом с .exe в корне."""
+    # objects.json перенесён в cache/; для .exe создаём его копию в корне,
+    # чтобы приложение при первом запуске заполнило cache/objects.json.
+    objects_dest = ROOT / "objects.json"
+    if OBJECTS_SOURCE.exists():
+        if not objects_dest.exists() or OBJECTS_SOURCE.stat().st_mtime > objects_dest.stat().st_mtime:
+            print(f"[build] Копирую objects.json из {OBJECTS_SOURCE}")
+            import shutil
+            shutil.copy2(OBJECTS_SOURCE, objects_dest)
     for name in RUNTIME_DATA:
         src = ROOT / name
         if src.exists():

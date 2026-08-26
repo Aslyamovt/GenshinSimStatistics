@@ -1,4 +1,4 @@
-"""Конфигурация приложения Genshin DPS leaders: пути, URL, константы."""
+"""Конфигурация приложения Genshin Sim Statistics: пути, URL, константы."""
 
 import sys
 from pathlib import Path
@@ -19,10 +19,26 @@ def _base_dir() -> Path:
 # Корень проекта (папка, содержащая пакет genshin_dps или сам .exe)
 BASE_DIR = _base_dir()
 
+# --- Имя и версия сервиса ---
+APP_NAME = "Genshin Sim Statistics"
+APP_VERSION = "2.0.1"
+
 # --- Пути к кэшу и файлам ---
 CACHE_DIR = BASE_DIR / "cache"
 DB_PATH = CACHE_DIR / "local_db.json"
-OBJECTS_PATH = BASE_DIR / "objects.json"
+OBJECTS_PATH = CACHE_DIR / "objects.json"
+# Резервная копия классификационных списков рядом с приложением/.exe. Если в
+# кэше объектов ещё нет, этот файл копируется в cache/objects.json при первом
+# запуске (поставляется вместе с .exe через build.py).
+DEFAULT_OBJECTS_PATH = BASE_DIR / "objects.json"
+
+# --- База замеров Wfpsim (хранится отдельно от базы Simpact) ---
+WFPSIM_DB_PATH = CACHE_DIR / "wfpsim_db.json"
+# Классификация неизвестных объектов, найденных в замерах Wfpsim.
+# Структура файла такая же, как у objects.json; объекты из обоих файлов
+# объединяются при фильтрации по персонажам во вкладке Wfpsim database.
+WFPSIM_OBJECTS_PATH = CACHE_DIR / "wfpsim_objects.json"
+DEFAULT_PNG = CACHE_DIR / "default.png"
 
 AVATARS_DIR = CACHE_DIR / "avatars"
 WEAPONS_DIR = CACHE_DIR / "weapons"
@@ -38,6 +54,15 @@ API_ARTIFACT_URL = "https://simpact.app/api/assets/artifacts/{set}_flower.png"
 
 # Ссылка на детали замера в gcsim
 GCSIM_DB_URL = "https://gcsim.app/db/{record_id}"
+
+# --- URL Wfpsim (неофициальный форк gcsim с базой замеров) ---
+# Ссылка в формате, который пользователь вводит в окне добавления записи.
+WFPSIM_SHARE_URL = "https://wfpsim.com/sh/{record_id}"
+# API-ссылка, по которой запрашивается JSON замера.
+WFPSIM_API_SHARE_URL = "https://wfpsim.com/api/share/{record_id}"
+
+# --- Интерфейс вкладки Wfpsim database ---
+WFPSIM_CARDS_PER_PAGE = 5  # количество карточек замеров на одной странице
 
 # --- Параметры выгрузки ---
 PAGE_SIZE = 100  # размер страницы при выгрузке из Simpact

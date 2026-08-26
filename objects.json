@@ -7,7 +7,6 @@
         "columbina",
         "durin",
         "escoffier",
-        "flins",
         "furina",
         "ineffa",
         "kazuha",
@@ -27,7 +26,8 @@
         "yelan",
         "zhongli",
         "kaedeharakazuha",
-        "raidenshogun"
+        "raidenshogun",
+        "flins"
     ],
     "old_event_leg_names_list": [
         "albedo",
