@@ -1,6 +1,6 @@
 """Правила отбора записей и вычисление флагов наборов фильтров."""
 
-from . import models
+from . import config, models
 
 
 def _has_forbidden_weapon(team, om) -> bool:
@@ -28,7 +28,7 @@ def _has_forbidden_cons(team, om) -> bool:
 
 
 def is_allowed(raw_record: dict, om) -> bool:
-    """Проверяет, что запись проходит все правила отбора (1-7)."""
+    """Проверяет, что запись проходит все правила отбора (1-8)."""
     team = (raw_record.get("summary", {}) or {}).get("team", []) or []
 
     # Правило 6: число персонажей не меньше 4
@@ -46,6 +46,10 @@ def is_allowed(raw_record: dict, om) -> bool:
     # Правила 2-4: превышение cons
     if _has_forbidden_cons(team, om):
         return False
+    # Правило 8: средняя длина замера должна быть больше MIN_SIM_DURATION
+    sim_duration = ((raw_record.get("summary") or {}).get("sim_duration") or {}).get("mean")
+    if sim_duration is None or float(sim_duration) <= config.MIN_SIM_DURATION:
+        return False
     return True
 
 
@@ -55,6 +59,7 @@ def compute_flags(team, om) -> dict:
 
     kqms: у всех персонажей из new/old/standart списков cons == 0.
     kqms_selector: у new cons == 0; у old/standart cons < 2.
+    ftp: ограничения как у kqms, но число персонажей из epic_names_list > 2.
     """
     kqms = True
     kqms_selector = True
@@ -72,4 +77,13 @@ def compute_flags(team, om) -> dict:
         else:  # old / standart
             if cons >= 2:
                 kqms_selector = False
-    return {"kqms": kqms, "kqms_selector": kqms_selector}
+
+    # ftp: как kqms, но дополнительно более 2 персонажей из epic_names_list
+    epic_count = sum(
+        1
+        for member in team
+        if om.classify_character(models.member_name(member)) == "epic_names_list"
+    )
+    ftp = kqms and epic_count > 2
+
+    return {"kqms": kqms, "kqms_selector": kqms_selector, "ftp": ftp}

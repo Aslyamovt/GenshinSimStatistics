@@ -25,6 +25,16 @@ def canonical_names(team: list) -> list:
     return sorted(member_name(m) for m in team)
 
 
+def canonical_composition(team: list) -> list:
+    """
+    Канонический состав отряда: отсортированный список пар (имя, cons).
+
+    Записи с одинаковым набором имён, но разными значениями cons для персонажей
+    считаются разными записями, поэтому состав учитывает cons каждого члена.
+    """
+    return sorted((member_name(m), member_cons(m)) for m in team)
+
+
 def team_to_record(raw_record: dict) -> dict:
     """Преобразует сырую запись из Simpact в компактную запись локальной базы."""
     summary = raw_record.get("summary", {})
@@ -33,6 +43,7 @@ def team_to_record(raw_record: dict) -> dict:
         "_id": raw_record.get("_id"),
         "mean_dps_per_target": summary.get("mean_dps_per_target", 0),
         "names": canonical_names(team),
+        "composition": canonical_composition(team),
         "team": team,
         "description": (raw_record.get("description") or ""),
     }

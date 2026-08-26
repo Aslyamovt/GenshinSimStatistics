@@ -3,11 +3,11 @@
 import json
 from pathlib import Path
 
-from . import config
+from . import config, models
 
 
 class LocalDB:
-    """Хранит записи об отрядах, уникальные по составу (списку имён)."""
+    """Хранит записи об отрядах, уникальные по составу (набор имён + cons)."""
 
     def __init__(self, path=None):
         self.path = Path(path) if path else config.DB_PATH
@@ -28,15 +28,34 @@ class LocalDB:
         with open(self.path, "w", encoding="utf-8") as f:
             json.dump(self.records, f, ensure_ascii=False, indent=2)
 
+    def _composition_key(self, record: dict) -> tuple:
+        """
+        Ключ состава записи: отсортированный набор пар (имя, cons).
+
+        Записи с одинаковыми именами, но разными значениями cons считаются разными.
+        Для старых записей без поля ``composition`` ключ вычисляется из команды.
+        """
+        comp = record.get("composition")
+        if comp:
+            return tuple((n, int(c or 0)) for n, c in comp)
+        team = record.get("team", []) or []
+        return tuple(
+            (models.member_name(m), models.member_cons(m)) for m in team
+        )
+
     def reindex(self):
         self._by_composition = {}
         for rec in self.records:
-            self._by_composition.setdefault(tuple(rec.get("names", [])), []).append(rec)
+            self._by_composition.setdefault(self._composition_key(rec), []).append(rec)
 
     def merge(self, record: dict):
         """Добавляет/обновляет запись в базе по правилам дедупликации."""
-        record.setdefault("flags", {"kqms": False, "kqms_selector": False})
+        record.setdefault(
+            "flags", {"kqms": False, "kqms_selector": False, "ftp": False}
+        )
         record.setdefault("names", sorted(m.get("name", "") for m in record.get("team", [])))
+        if "composition" not in record:
+            record["composition"] = models.canonical_composition(record.get("team", []))
 
         # 1. Обновление по идентичному id
         for i, existing in enumerate(self.records):
@@ -45,8 +64,8 @@ class LocalDB:
                 self.reindex()
                 return
 
-        comp = tuple(record.get("names", []))
-        # 2. Дедупликация по составу: заменяем только при большем уроне
+        # 2. Дедупликация по составу (имя + cons): заменяем только при большем уроне
+        comp = self._composition_key(record)
         existing_list = self._by_composition.get(comp, [])
         for existing in existing_list:
             if record.get("mean_dps_per_target", 0) > existing.get("mean_dps_per_target", 0):
