@@ -21,7 +21,7 @@ BASE_DIR = _base_dir()
 
 # --- Имя и версия сервиса ---
 APP_NAME = "Genshin Sim Statistics"
-APP_VERSION = "2.0.3"
+APP_VERSION = "3.0.1"
 
 # --- Пути к кэшу и файлам ---
 CACHE_DIR = BASE_DIR / "cache"
@@ -38,6 +38,9 @@ WFPSIM_DB_PATH = CACHE_DIR / "wfpsim_db.json"
 # Структура файла такая же, как у objects.json; объекты из обоих файлов
 # объединяются при фильтрации по персонажам во вкладке Wfpsim database.
 WFPSIM_OBJECTS_PATH = CACHE_DIR / "wfpsim_objects.json"
+# Трансформированные записи Wfpsim для отображения во вкладке Genshin DPS Leaders.
+# Отдельный файл: не смешивается ни с local_db.json (Simpact), ни с wfpsim_db.json.
+WFPSIM_RECORDS_PATH = CACHE_DIR / "wfpsim_records.json"
 DEFAULT_PNG = CACHE_DIR / "default.png"
 
 AVATARS_DIR = CACHE_DIR / "avatars"

@@ -1,7 +1,9 @@
 """Пользовательский интерфейс приложения на Gradio.
 
 Приложение «Genshin Sim Statistics» содержит две вкладки:
-  - «Genshin DPS Leaders» — таблица лидеров отрядов по урону (база Simpact);
+  - «Genshin DPS Leaders» — таблица лидеров отрядов по урону. Помимо базы Simpact
+    (``cache/local_db.json``) может отображать записи из Wfpsim database,
+    преобразованные по тем же правилам (файл ``cache/wfpsim_records.json``);
   - «Wfpsim database» — ведение локальной базы замеров урона из сервиса Wfpsim.
 
 Выбор языка (русский / английский) вынесен на уровень всего интерфейса.
@@ -32,6 +34,7 @@ from .classifier_ui import (
 from .db import LocalDB
 from .downloader import SimpactDownloader
 from .objects_manager import ObjectsManager
+from .wfpsim import records as wfpsim_records
 from .wfpsim import ui as wfpsim_ui
 
 APP_CSS = """
@@ -62,6 +65,10 @@ APP_CSS = """
             drop-shadow(0 -1px 0 rgba(255, 255, 255, 0.9));
 }
 """
+
+# Максимальное число карточек на странице (все слоты создаются заранее;
+# лишние скрываются в зависимости от выбранного размера страницы).
+MAX_PAGE_SIZE = 50
 
 
 def make_dark_theme():
@@ -106,21 +113,61 @@ def format_dps(value) -> str:
     return f"{int(value or 0):,}".replace(",", " ")
 
 
-def record_card_html(record, dl: SimpactDownloader) -> str:
-    """Строит HTML-карточку отряда с изображениями, cons/refine и ссылкой на gcsim."""
-    link = config.GCSIM_DB_URL.format(record_id=record.get("_id", ""))
+def record_card_html(record, dl: SimpactDownloader, invalid_id: str = None) -> str:
+    """Строит HTML-карточку отряда с изображениями, cons/refine и ссылкой.
+
+    Для записей из Wfpsim database добавляется красная надпись «wfpsim»
+    (по стилю аналогична метке «not valid»), ссылка ведёт на Wfpsim, а под ней
+    располагается кнопка «Сделать невалидной» (``invalid_id`` — elem_id скрытой
+    Gradio-кнопки, по которой выполняется клик).
+    """
+    is_wf = record.get("source") == wfpsim_records.SOURCE_WFPSIM
+    if is_wf:
+        url = record.get("wfpsim_url") or config.WFPSIM_SHARE_URL.format(
+            record_id=record.get("_id", "")
+        )
+        more_link = i18n.t("wf_link_more")
+    else:
+        url = config.GCSIM_DB_URL.format(record_id=record.get("_id", ""))
+        more_link = i18n.t("link_more")
+
     dps_str = format_dps(record.get("mean_dps_per_target", 0))
     team_names = " · ".join(html.escape(m.get("name", "")) for m in record.get("team", []))
-    more_link = i18n.t("link_more")
     art_title = i18n.t("art_title")
+
+    dps_title = f'<div style="font-size:22px;font-weight:bold;color:#5aa2e6;">DPS: {dps_str}</div>'
+    if is_wf:
+        badge = (
+            '<span style="background:#c0392b;color:#fff;padding:2px 8px;'
+            'border-radius:4px;font-weight:bold;font-size:12px;">wfpsim</span>'
+        )
+        dps_title = (
+            '<div style="display:flex;align-items:center;gap:8px;">'
+            + dps_title + badge + '</div>'
+        )
+
+    # Правая колонка шапки: ссылка «Подробнее…» и под ней «Сделать невалидной».
+    right = (
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">'
+        f'<a href="{url}" target="_blank" style="text-decoration:none;background:#1f6fb2;'
+        f'color:#fff;padding:8px 14px;border-radius:6px;">{more_link}</a>'
+    )
+    if is_wf and invalid_id:
+        right += (
+            f'<a href="javascript:void(0)" '
+            f'onclick="document.getElementById(\'{invalid_id}\').click(); return false;" '
+            'style="text-decoration:none;background:#c0392b;color:#fff;'
+            'padding:6px 12px;border-radius:6px;font-size:13px;">'
+            + html.escape(i18n.t("wf_make_invalid")) + '</a>'
+        )
+    right += '</div>'
 
     card = [
         '<div style="border:1px solid #3f3f46;border-radius:10px;padding:14px;'
         'margin:10px 0;background:#252526;">',
         '<div style="display:flex;justify-content:space-between;align-items:center;">',
-        f'<div style="font-size:22px;font-weight:bold;color:#5aa2e6;">DPS: {dps_str}</div>',
-        f'<a href="{link}" target="_blank" style="text-decoration:none;background:#1f6fb2;'
-        f'color:#fff;padding:8px 14px;border-radius:6px;">{more_link}</a>',
+        dps_title,
+        right,
         '</div>',
         f'<div style="color:#9a9a9a;margin:6px 0;">{team_names}</div>',
     ]
@@ -138,7 +185,6 @@ def record_card_html(record, dl: SimpactDownloader) -> str:
         cell = ('<div style="display:inline-block;text-align:center;margin:8px;'
                 'width:120px;vertical-align:top;">')
 
-        # Контейнер аватара (увеличен в 2 раза) с наложенными элементами
         avatar_box = (
             '<div style="position:relative;display:inline-block;'
             'width:120px;height:120px;border-radius:8px;overflow:hidden;">'
@@ -151,8 +197,6 @@ def record_card_html(record, dl: SimpactDownloader) -> str:
                            f'color:#bbb;display:flex;align-items:center;'
                            f'justify-content:center;">{name_esc}</div>')
 
-        # cons сверху-слева и refine сразу справа от него (поверх аватара),
-        # цвета поменяны местами: cons — золотой, refine — синий
         badges = ('<div style="position:absolute;top:2px;left:2px;display:flex;'
                   'align-items:center;gap:4px;background:rgba(15,15,15,0.75);'
                   'padding:1px 6px;border-radius:6px 0 6px 0;font-weight:bold;'
@@ -163,15 +207,12 @@ def record_card_html(record, dl: SimpactDownloader) -> str:
         badges += '</div>'
         avatar_box += badges
 
-        # Иконка набора артефактов снизу-слева (поверх аватара).
-        # При двух наборах — половинки иконок, разделённые по вертикали.
         arts = html_utils.artifact_icons_html(art_srcs, art_title)
         if arts:
             avatar_box += (
                 '<div style="position:absolute;bottom:2px;left:2px;">' + arts + '</div>'
             )
 
-        # Иконка оружия снизу-справа (поверх аватара)
         if wp:
             avatar_box += (
                 '<div style="position:absolute;bottom:2px;right:2px;">'
@@ -186,7 +227,6 @@ def record_card_html(record, dl: SimpactDownloader) -> str:
         cell += '</div>'
         card.append(cell)
 
-    # Комментарий к замеру между иконками и кнопкой
     desc = (record.get("description") or "").strip()
     if desc:
         card.append(
@@ -206,6 +246,11 @@ FILTER_KQMS = "kqms"
 FILTER_KQMS_SELECTOR = "kqms_selector"
 FILTER_FTP = "ftp"
 
+# Режимы источника записей во вкладке Genshin DPS Leaders.
+SRC_GCSIM = wfpsim_records.MODE_GCSIM
+SRC_WF_UNIQUE = wfpsim_records.MODE_WF_UNIQUE
+SRC_WF_ALL = wfpsim_records.MODE_WF_ALL
+
 
 def filter_choices() -> list:
     """Локализованные варианты набора фильтров для выпадающего списка."""
@@ -217,9 +262,18 @@ def filter_choices() -> list:
     ]
 
 
-def filter_records(ldb, om, filter_set, required, excluded):
-    """Возвращает записи базы с учётом набора фильтров и персонажей."""
-    records = ldb.sorted_records()
+def src_choices() -> list:
+    """Локализованные варианты фильтра «Источник»."""
+    return [
+        (i18n.t("src_gcsim"), SRC_GCSIM),
+        (i18n.t("src_wf_unique"), SRC_WF_UNIQUE),
+        (i18n.t("src_wf_all"), SRC_WF_ALL),
+    ]
+
+
+def _filter_by_flags_and_chars(records, filter_set, required, excluded):
+    """Фильтрует записи по набору фильтров (KQMS/FTP) и персонажам."""
+    records = list(records)
     if filter_set == FILTER_KQMS:
         records = [r for r in records if r.get("flags", {}).get("kqms")]
     elif filter_set == FILTER_KQMS_SELECTOR:
@@ -241,44 +295,103 @@ def filter_records(ldb, om, filter_set, required, excluded):
     return [r for r in records if passes(r)]
 
 
-def build_teams_html(ldb, om, dl, filter_set, required, excluded, page, page_size):
-    """Формирует HTML всех карточек отрядов для текущей страницы."""
-    records = filter_records(ldb, om, filter_set, required, excluded)
-    total = len(records)
-    page = max(1, int(page))
-    size = int(page_size)
-    start = (page - 1) * size
-    page_records = records[start:start + size]
-    pages = max(1, (total + size - 1) // size)
+def _merged_filtered(ldb, om, wf_records, filter_set, source_mode, required, excluded):
+    """Объединяет записи Simpact и Wfpsim после применения всех фильтров."""
+    ldb_filtered = _filter_by_flags_and_chars(
+        ldb.sorted_records(), filter_set, required, excluded
+    )
+    wf_filtered = _filter_by_flags_and_chars(
+        wf_records, filter_set, required, excluded
+    )
+    return wfpsim_records.merge_sources(ldb_filtered, wf_filtered, source_mode)
 
-    header = i18n.t("total_teams", total=total, page=page, pages=pages)
-    parts = [f'<div style="color:#888;margin:6px 0;">{header}</div>']
-    if not page_records:
-        parts.append(
-            '<div style="color:#999;padding:20px;">' + i18n.t("no_teams") + '</div>'
-        )
-    else:
-        parts.extend(record_card_html(r, dl) for r in page_records)
-    return "".join(parts), i18n.t("total_label", total=total)
+
+def _slot_record(records, page, page_size, slot_idx):
+    """Возвращает запись для слота или None."""
+    records = records or []
+    page = max(1, int(page or 1))
+    size = int(page_size or 10)
+    idx = (page - 1) * size + slot_idx
+    if 0 <= idx < len(records):
+        return records[idx]
+    return None
 
 
 # ---------------------------------------------------------------------------
 # Обработчики событий
 # ---------------------------------------------------------------------------
 
-# Вспомогательные функции панели классификации импортируются из classifier_ui:
-# MAX_CLS_ROWS, _cls_n_pages, _row_updates, _row_reset_updates, _nav_updates.
-
-def make_handlers(om, ldb, dl, cls_rows=None):
+def make_handlers(om, ldb, dl, slots, wf_records_obj, cls_rows=None):
     """Возвращает словарь функций-обработчиков, замыкающих состояние."""
     cls_assign = {}
     cls_map = {}
     size = len(cls_rows or [])
 
-    def handle_refresh(filter_set, required, excluded, page, page_size):
-        return build_teams_html(ldb, om, dl, filter_set, required, excluded, page, page_size)
+    def handle_refresh(filter_set, source_mode, required, excluded, page, page_size):
+        # Перечитываем трансформированные записи Wfpsim (обновляются сразу после
+        # изменений во вкладке Wfpsim database).
+        wf_records_obj.load()
+        records = _merged_filtered(
+            ldb, om, wf_records_obj.records,
+            filter_set, source_mode, required, excluded,
+        )
+        total = len(records)
+        page = max(1, int(page or 1))
+        size = int(page_size or 10)
+        total_pages = max(1, (total + size - 1) // size)
+        page = min(page, total_pages)
+        start = (page - 1) * size
+        page_records = records[start:start + size]
 
-    def handle_update(filter_set, required, excluded, page, page_size,
+        slot_updates = []
+        for idx in range(MAX_PAGE_SIZE):
+            if idx < len(page_records):
+                rec = page_records[idx]
+                # Кнопка «Сделать невалидной» встроена в HTML карточки и кликает
+                # по скрытой Gradio-кнопке слота (всегда скрыта).
+                invalid_id = slots[idx]["invalid_id"]
+                slot_updates += [
+                    gr.update(visible=True),
+                    gr.update(value=record_card_html(rec, dl, invalid_id)),
+                    gr.update(visible=False),
+                ]
+            else:
+                slot_updates += [
+                    gr.update(visible=False),
+                    gr.update(value=""),
+                    gr.update(visible=False),
+                ]
+
+        if total == 0:
+            total_text = i18n.t("no_teams")
+        else:
+            total_text = i18n.t("total_label", total=total)
+        return slot_updates + [total_text, records]
+
+    def make_invalid(slot_idx):
+        def inner(filter_set, source_mode, required, excluded, page, page_size, records):
+            rec = _slot_record(records, page, page_size, slot_idx)
+            if rec and rec.get("source") == wfpsim_records.SOURCE_WFPSIM:
+                from .wfpsim.db import WfpsimDB
+
+                wdb = WfpsimDB()
+                for r in wdb.records:
+                    if r.get("_id") == rec.get("_id"):
+                        r["not_valid"] = True
+                        wdb.save()
+                        break
+                # Пересобираем с объединённым менеджером объектов (objects.json +
+                # wfpsim_objects.json), как при первичном построении и во вкладке
+                # Wfpsim database. Иначе персонажи, известные только в
+                # wfpsim_objects.json, классифицируются неверно и флаги наборов
+                # фильтров (например, ftp) вычисляются ошибочно.
+                wf_records_obj.rebuild(wfpsim_records.union_objects_manager(om))
+            return handle_refresh(
+                filter_set, source_mode, required, excluded, page, page_size
+            )
+        return inner
+
+    def handle_update(filter_set, source_mode, required, excluded, page, page_size,
                       progress=gr.Progress()):
         config.ensure_cache_dirs()
         raw, collector, total = update.fetch_phase(dl, om, progress)
@@ -337,7 +450,6 @@ def make_handlers(om, ldb, dl, cls_rows=None):
         char_map = {}
         weapon_map = {}
         # Применяем классификации для ВСЕХ объектов (со всех страниц).
-        # Для объектов без явного выбора используем рекомендованный список.
         for gi, (kind, name) in enumerate(items):
             val = cls_map.get(gi) or classifiers.recommended_list(kind)
             if not val:
@@ -382,6 +494,7 @@ def make_handlers(om, ldb, dl, cls_rows=None):
     return {
         "refresh": handle_refresh,
         "update": handle_update,
+        "make_invalid": [make_invalid(i) for i in range(len(slots or []))],
         "cls_prev": handle_cls_prev,
         "cls_next": handle_cls_next,
         "apply": handle_apply,
@@ -433,12 +546,15 @@ def _build_dps_tab(om, ldb, dl, char_choices):
                 cls_prev_btn = gr.Button(i18n.t("cls_prev"), visible=False, size="sm")
                 cls_nav_label = gr.Markdown("", elem_id="cls_nav")
                 cls_next_btn = gr.Button(i18n.t("cls_next"), visible=False, size="sm")
-            apply_btn = gr.Button(
-                i18n.t("cls_apply"), visible=False
-            )
+            apply_btn = gr.Button(i18n.t("cls_apply"), visible=False)
 
-        # Обработчики зависят от динамически созданных строк классификации
-        handlers = make_handlers(om, ldb, dl, cls_rows)
+        # Трансформированные записи Wfpsim (читаются из отдельного файла)
+        wf_records_obj = wfpsim_records.WfpsimRecords()
+        # Персонажи из objects.json и объединение с wfpsim_objects.json
+        # (для фильтров «Обязательные/Исключённые» при источнике Wfpsim).
+        wf_char_choices = sorted(
+            set(wfpsim_records.union_objects_manager(om).all_characters())
+        )
 
         filters_heading = gr.Markdown(i18n.t("filters_heading"))
         with gr.Row():
@@ -446,6 +562,11 @@ def _build_dps_tab(om, ldb, dl, char_choices):
                 choices=filter_choices(),
                 value=FILTER_ALL,
                 label=i18n.t("filter_set_label"),
+            )
+            source = gr.Dropdown(
+                choices=src_choices(),
+                value=SRC_GCSIM,
+                label=i18n.t("src_filter_label"),
             )
             page_size = gr.Dropdown(
                 choices=[10, 20, 50],
@@ -465,24 +586,56 @@ def _build_dps_tab(om, ldb, dl, char_choices):
             )
 
         teams_heading = gr.Markdown(i18n.t("teams_heading"))
-        teams_html = gr.HTML()
         total_label = gr.Markdown("")
+
+        # Карточки отрядов (слоты создаются заранее; для записей Wfpsim
+        # показывается кнопка «Сделать невалидной»)
+        slots = []
+        slot_outputs = []
+        for i in range(MAX_PAGE_SIZE):
+            # Скрытая Gradio-кнопка — цель клика из HTML-кнопки «Сделать невалидной»
+            # на карточке записи Wfpsim (embed через elem_id).
+            invalid_id = f"dps_wf_invalid_{i}"
+            with gr.Column(visible=False) as col:
+                card_html_comp = gr.HTML()
+                invalid_btn = gr.Button(
+                    i18n.t("wf_make_invalid"),
+                    size="sm",
+                    visible=False,
+                    elem_id=invalid_id,
+                )
+            slot = {
+                "col": col,
+                "html": card_html_comp,
+                "invalid": invalid_btn,
+                "invalid_id": invalid_id,
+            }
+            slots.append(slot)
+            slot_outputs += [col, card_html_comp, invalid_btn]
+
+        # Записи текущей страницы (для кнопок на карточках)
+        records_state = gr.State([])
+
+        # Обработчики зависят от динамически созданных строк классификации и слотов
+        handlers = make_handlers(om, ldb, dl, slots, wf_records_obj, cls_rows)
 
         with gr.Row():
             prev_btn = gr.Button(i18n.t("prev_btn"))
             page = gr.Number(value=1, precision=0, label=i18n.t("page_label"))
             next_btn = gr.Button(i18n.t("next_btn"))
 
-        refresh_inputs = [filter_set, required, excluded, page, page_size]
-        refresh_outputs = [teams_html, total_label]
+        refresh_inputs = [filter_set, source, required, excluded, page, page_size]
+        refresh_outputs = slot_outputs + [total_label, records_state]
 
         # Подписи компонентов, которые нужно обновить при смене языка
         lang_outputs = [
             update_btn, status,
             cls_heading, cls_description, apply_btn, cls_prev_btn, cls_next_btn,
-            filter_set, page_size, required, excluded,
+            filter_set, source, page_size, required, excluded,
             filters_heading, teams_heading, prev_btn, page, next_btn,
         ]
+        for s in slots:
+            lang_outputs.append(s["invalid"])
         for r in cls_rows:
             lang_outputs.append(r["dd"])
 
@@ -498,6 +651,7 @@ def _build_dps_tab(om, ldb, dl, char_choices):
                 gr.update(value=i18n.t("cls_prev")),
                 gr.update(value=i18n.t("cls_next")),
                 gr.update(label=i18n.t("filter_set_label"), choices=filter_choices()),
+                gr.update(label=i18n.t("src_filter_label"), choices=src_choices()),
                 gr.update(label=i18n.t("page_size_label")),
                 gr.update(label=i18n.t("required_label")),
                 gr.update(label=i18n.t("excluded_label")),
@@ -507,6 +661,8 @@ def _build_dps_tab(om, ldb, dl, char_choices):
                 gr.update(label=i18n.t("page_label")),
                 gr.update(value=i18n.t("next_btn")),
             ]
+            for _ in slots:
+                updates.append(gr.update(value=i18n.t("wf_make_invalid")))
             for _ in cls_rows:
                 updates.append(gr.update(label=i18n.t("cls_list_label")))
             return updates
@@ -523,8 +679,19 @@ def _build_dps_tab(om, ldb, dl, char_choices):
             cls_prev_btn, cls_next_btn, cls_nav_label, cls_page,
         ]
 
+        # Для источника Wfpsim в фильтрах персонажей доступно объединение
+        # объектов.json + wfpsim_objects.json; для «Только gcsim» — только objects.json.
+        def _source_choices(src):
+            choices = char_choices if src == SRC_GCSIM else wf_char_choices
+            return gr.update(choices=choices), gr.update(choices=choices)
+
         # Фильтры: смена фильтра/сортировки сбрасывает список на первую страницу
         filter_set.change(lambda: 1, [], [page]).then(
+            handlers["refresh"], refresh_inputs, refresh_outputs
+        )
+        source.change(_source_choices, [source], [required, excluded]).then(
+            lambda: 1, [], [page]
+        ).then(
             handlers["refresh"], refresh_inputs, refresh_outputs
         )
         required.change(lambda: 1, [], [page]).then(
@@ -537,6 +704,15 @@ def _build_dps_tab(om, ldb, dl, char_choices):
             handlers["refresh"], refresh_inputs, refresh_outputs
         )
         page.change(handlers["refresh"], refresh_inputs, refresh_outputs)
+
+        # Кнопки «Сделать невалидной» на карточках записей Wfpsim
+        action_inputs = [
+            filter_set, source, required, excluded, page, page_size, records_state,
+        ]
+        for i, slot in enumerate(slots):
+            slot["invalid"].click(
+                handlers["make_invalid"][i], action_inputs, refresh_outputs
+            )
 
         # Пагинация
         prev_btn.click(lambda p: max(1, int(p or 1) - 1), [page], [page]) \
@@ -575,8 +751,7 @@ def _build_dps_tab(om, ldb, dl, char_choices):
             outputs=cls_full_outputs,
         ).then(handlers["refresh"], refresh_inputs, refresh_outputs)
 
-        # Сохранение выбранных списков при переключении страниц классификатора,
-        # чтобы при применении учитывались классификации со всех страниц
+        # Сохранение выбранных списков при переключении страниц классификатора
         for i, r in enumerate(cls_rows):
             r["dd"].change(
                 handlers["select"][i],
@@ -601,6 +776,12 @@ def build_demo():
     om = ObjectsManager()
     ldb = LocalDB()
     dl = SimpactDownloader()
+
+    # Пересобираем трансформированные записи Wfpsim на старте (если они ещё не
+    # были построены или база Wfpsim менялась вне сессии).
+    wfpsim_records.WfpsimRecords().rebuild(
+        wfpsim_records.union_objects_manager(om)
+    )
 
     char_choices = sorted(set(om.all_characters()))
     lang_choices = [(i18n.LANG_LABELS[k], k) for k in i18n.LANGUAGES]
