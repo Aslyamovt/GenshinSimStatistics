@@ -1,7 +1,9 @@
 {
     "new_event_leg_names_list": [
         "linnea",
-        "zibai"
+        "zibai",
+        "sandrone",
+        "odette"
     ],
     "old_event_leg_names_list": [],
     "standart_leg_names_list": [],
@@ -11,5 +13,8 @@
     "leg_weapons_list": [],
     "bp_or_event_weapons_list": [],
     "epic_weapons_list": [],
-    "rare_weapons_list": []
+    "rare_weapons_list": [
+        "exaiphanesblade",
+        "snarehook"
+    ]
 }

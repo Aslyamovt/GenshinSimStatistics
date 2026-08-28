@@ -58,10 +58,23 @@ def _record_card_html(record: dict, service: WfpsimService) -> str:
         'margin:8px 0;background:#252526;">',
         '<div style="display:flex;justify-content:space-between;align-items:center;">',
         f'<div style="font-size:22px;font-weight:bold;color:#5aa2e6;">DPS: {dps_str}</div>',
-        f'<div style="font-size:12px;color:#777;">{html.escape(str(record.get("_id", "")))}</div>',
-        '</div>',
-        f'<div style="color:#9a9a9a;margin:6px 0;">{team_names}</div>',
     ]
+    id_part = (
+        f'<div style="font-size:12px;color:#777;">'
+        f'{html.escape(str(record.get("_id", "")))}</div>'
+    )
+    if record.get("not_valid"):
+        badge = (
+            '<span style="background:#c0392b;color:#fff;padding:2px 8px;'
+            'border-radius:4px;font-weight:bold;font-size:12px;">not valid</span>'
+        )
+        card.append(
+            f'<div style="display:flex;align-items:center;gap:8px;">{badge}{id_part}</div>'
+        )
+    else:
+        card.append(id_part)
+    card.append('</div>')
+    card.append(f'<div style="color:#9a9a9a;margin:6px 0;">{team_names}</div>')
 
     for m in record.get("team", []):
         av = html_utils.img_src(service.avatar_path(m))
@@ -96,16 +109,10 @@ def _record_card_html(record: dict, service: WfpsimService) -> str:
         badges += '</div>'
         avatar_box += badges
 
-        if art_srcs:
-            arts = "".join(
-                f'<img src="{s}" class="icon-outline" '
-                f'style="width:44px;height:44px;object-fit:cover;margin:1px;" '
-                f'title="{art_title}">'
-                for s in art_srcs[:2]
-            )
+        arts = html_utils.artifact_icons_html(art_srcs, art_title)
+        if arts:
             avatar_box += (
-                '<div style="position:absolute;bottom:2px;left:2px;display:flex;">'
-                + arts + '</div>'
+                '<div style="position:absolute;bottom:2px;left:2px;">' + arts + '</div>'
             )
 
         if wp:
@@ -159,7 +166,7 @@ def wf_sort_choices():
     ]
 
 
-def _apply_filters(records, sort_key, required, excluded):
+def _apply_filters(records, sort_key, required, excluded, show_invalid):
     if sort_key == WF_SORT_DPS:
         records = sorted(
             records,
@@ -178,6 +185,8 @@ def _apply_filters(records, sort_key, required, excluded):
 
     result = []
     for rec in records:
+        if not show_invalid and rec.get("not_valid"):
+            continue
         names = set(rec.get("names", []))
         if req and not names.issuperset(req):
             continue
@@ -209,7 +218,9 @@ def build_wfpsim_tab(om):
     wom = UnionObjectsManager(om, extra_om)
 
     char_choices = wom.all_characters()
-    card_count = config.WFPSIM_CARDS_PER_PAGE
+    # Число записей на странице выбирается пользователем (как во вкладке Simpact).
+    PAGE_SIZE_CHOICES = [10, 20, 50]
+    MAX_PAGE_SIZE = max(PAGE_SIZE_CHOICES)
     cls_size = MAX_CLS_ROWS
 
     # Состояние вкладки
@@ -256,41 +267,21 @@ def build_wfpsim_tab(om):
             multiselect=True,
             label=i18n.t("excluded_label"),
         )
+    with gr.Row():
+        wf_show_invalid = gr.Checkbox(
+            value=False,
+            label=i18n.t("wf_show_invalid"),
+        )
+        wf_page_size = gr.Dropdown(
+            choices=PAGE_SIZE_CHOICES,
+            value=10,
+            label=i18n.t("wf_page_size_label"),
+        )
     wf_total_label = gr.Markdown("")
 
-    # Карточки замеров (фиксированное количество слотов на страницу)
-    slots = []
-    slot_outputs = []
-    for _ in range(card_count):
-        with gr.Column(visible=False) as col:
-            card_html_comp = gr.HTML()
-            with gr.Row():
-                more = gr.HTML()
-                replace_btn = gr.Button(i18n.t("wf_btn_replace"), size="sm")
-                delete_btn = gr.Button(i18n.t("wf_btn_delete"), size="sm")
-                invalid_btn = gr.Button(i18n.t("wf_btn_invalid"), size="sm")
-                copy_btn = gr.Button(i18n.t("wf_btn_copy"), size="sm")
-        slot = {
-            "col": col,
-            "html": card_html_comp,
-            "more": more,
-            "replace": replace_btn,
-            "delete": delete_btn,
-            "invalid": invalid_btn,
-            "copy": copy_btn,
-        }
-        slots.append(slot)
-        slot_outputs += [
-            col, card_html_comp, more, replace_btn, delete_btn, invalid_btn, copy_btn,
-        ]
-
-    # Пагинация
-    with gr.Row():
-        wf_prev_btn = gr.Button(i18n.t("wf_prev"))
-        wf_nav_label = gr.Markdown("")
-        wf_next_btn = gr.Button(i18n.t("wf_next"))
-
-    # Панель классификации неизвестных персонажей/оружия из замеров Wfpsim
+    # Панель классификации неизвестных персонажей/оружия из замеров Wfpsim.
+    # Располагается над списком записей, чтобы при добавлении новой записи
+    # открываться непосредственно перед списком отранжированных записей.
     with gr.Column(visible=False) as wf_unknown_group:
         wf_cls_heading = gr.Markdown(i18n.t("cls_heading"))
         wf_cls_description = gr.Markdown(i18n.t("cls_description"))
@@ -313,24 +304,61 @@ def build_wfpsim_tab(om):
             wf_cls_next_btn = gr.Button(i18n.t("cls_next"), visible=False, size="sm")
         wf_cls_apply_btn = gr.Button(i18n.t("cls_apply"), visible=False)
 
+    # Карточки замеров (максимальное количество слотов; лишние скрываются
+    # в зависимости от выбранного числа записей на странице)
+    slots = []
+    slot_outputs = []
+    for _ in range(MAX_PAGE_SIZE):
+        with gr.Column(visible=False) as col:
+            card_html_comp = gr.HTML()
+            with gr.Row():
+                more = gr.HTML()
+                replace_btn = gr.Button(i18n.t("wf_btn_replace"), size="sm")
+                delete_btn = gr.Button(i18n.t("wf_btn_delete"), size="sm")
+                invalid_btn = gr.Button(i18n.t("wf_btn_invalid"), size="sm")
+                copy_btn = gr.Button(i18n.t("wf_btn_copy"), size="sm")
+        slot = {
+            "col": col,
+            "html": card_html_comp,
+            "more": more,
+            "replace": replace_btn,
+            "delete": delete_btn,
+            "invalid": invalid_btn,
+            "copy": copy_btn,
+        }
+        slots.append(slot)
+        slot_outputs += [
+            col, card_html_comp, more, replace_btn, delete_btn, invalid_btn, copy_btn,
+        ]
+
+    # Пагинация (включая переход к странице по номеру)
+    with gr.Row():
+        wf_prev_btn = gr.Button(i18n.t("wf_prev"))
+        wf_page_num = gr.Number(value=1, precision=0, label=i18n.t("page_label"))
+        wf_next_btn = gr.Button(i18n.t("wf_next"))
+        wf_nav_label = gr.Markdown("")
+
     # Замыкаемое состояние классификатора (сопоставление строк с объектами)
     cls_assign = {}
     cls_map = {}
 
     # --- Внутренние вспомогательные функции ---
 
-    def _build_current(sort_key, required, excluded, page):
-        records = _apply_filters(wdb.records, sort_key, required, excluded)
+    def _build_current(sort_key, required, excluded, show_invalid, page_size, page):
+        records = _apply_filters(
+            wdb.records, sort_key, required, excluded, show_invalid
+        )
         n = len(records)
-        total_pages = max(1, (n + card_count - 1) // card_count)
+        size = int(page_size or 10)
+        total_pages = max(1, (n + size - 1) // size)
         page = min(max(1, int(page or 1)), total_pages)
-        start = (page - 1) * card_count
-        page_records = records[start:start + card_count]
+        start = (page - 1) * size
+        page_records = records[start:start + size]
 
         slot_updates = []
-        for slot in slots:
-            if page_records:
-                rec = page_records.pop(0)
+        for idx in range(MAX_PAGE_SIZE):
+            if idx < len(page_records):
+                rec = page_records[idx]
                 # Исходная ссылка на запись Wfpsim (сохранённая при добавлении/замене)
                 url = rec.get("wfpsim_url") or config.WFPSIM_SHARE_URL.format(
                     record_id=rec.get("_id")
@@ -363,14 +391,15 @@ def build_wfpsim_tab(om):
         nav_updates = [
             gr.update(interactive=page > 1),
             gr.update(interactive=page < total_pages),
+            gr.update(value=page),
             gr.update(value=i18n.t("wf_nav", page=page, pages=total_pages)),
         ]
         return records, page, slot_updates, nav_updates, total_text
 
-    def _refresh_tail(sort_key, required, excluded, page):
+    def _refresh_tail(sort_key, required, excluded, show_invalid, page_size, page):
         """Обновления карточек/пагинации/состояния списка."""
         records, page_used, slot_up, nav_up, total = _build_current(
-            sort_key, required, excluded, page
+            sort_key, required, excluded, show_invalid, page_size, page
         )
         return slot_up + nav_up + [page_used, records, total]
 
@@ -399,39 +428,42 @@ def build_wfpsim_tab(om):
 
     # --- Обработчики ---
 
-    def handle_refresh(sort_key, required, excluded, page):
-        return _refresh_tail(sort_key, required, excluded, page)
+    def handle_refresh(sort_key, required, excluded, show_invalid, page_size, page):
+        return _refresh_tail(sort_key, required, excluded, show_invalid, page_size, page)
 
-    def _slot_record(records, page, slot_idx):
+    def _slot_record(records, page, page_size, slot_idx):
         records = records or []
         page = max(1, int(page or 1))
-        idx = (page - 1) * card_count + slot_idx
+        size = int(page_size or 10)
+        idx = (page - 1) * size + slot_idx
         if 0 <= idx < len(records):
             return records[idx]
         return None
 
     def make_action(slot_idx, kind):
-        def inner(sort_key, required, excluded, page, records):
-            rec = _slot_record(records, page, slot_idx)
+        def inner(sort_key, required, excluded, show_invalid, page_size, page, records):
+            rec = _slot_record(records, page, page_size, slot_idx)
             if rec is not None:
                 rid = rec.get("_id")
                 if kind == "delete":
                     wdb.delete(rid)
                 elif kind == "invalid":
-                    wdb.mark_not_valid(rid)
-            return _refresh_tail(sort_key, required, excluded, page)
+                    wdb.toggle_not_valid(rid)
+            return _refresh_tail(
+                sort_key, required, excluded, show_invalid, page_size, page
+            )
         return inner
 
     def make_copy(slot_idx):
-        def inner(page, records):
-            rec = _slot_record(records, page, slot_idx)
+        def inner(page, page_size, records):
+            rec = _slot_record(records, page, page_size, slot_idx)
             cfg = rec.get("config", "") if rec else ""
             return cfg, i18n.t("wf_copied")
         return inner
 
     def make_replace_open(slot_idx):
-        def inner(page, records):
-            rec = _slot_record(records, page, slot_idx)
+        def inner(page, page_size, records):
+            rec = _slot_record(records, page, page_size, slot_idx)
             rid = rec.get("_id") if rec else None
             return (
                 rid,                         # wf_replace_target (State — сырое значение)
@@ -452,31 +484,37 @@ def build_wfpsim_tab(om):
         collector.scan_record({"summary": {"team": record.get("team", [])}})
         return collector.items()
 
-    def _error_return(msg, sort_key, required, excluded, page):
+    def _error_return(msg, sort_key, required, excluded, show_invalid, page_size, page):
         # Внимание: wf_replace_target/wf_pending_record/wf_pending_old_id — это
         # gr.State, поэтому для них возвращаются сырые значения, а не gr.update.
         return (
             [gr.update(value=msg), gr.update(visible=True),
              None, None, None]
-            + _refresh_tail(sort_key, required, excluded, page)
+            + _refresh_tail(sort_key, required, excluded, show_invalid, page_size, page)
             + _cls_reset()
         )
 
-    def handle_continue(url, target, sort_key, required, excluded, page):
+    def handle_continue(url, target, sort_key, required, excluded,
+                        show_invalid, page_size, page):
         target = target or None
         rid = service.extract_id(url or "")
         if not rid:
-            return _error_return(i18n.t("wf_err_url"), sort_key, required, excluded, page)
+            return _error_return(
+                i18n.t("wf_err_url"), sort_key, required, excluded,
+                show_invalid, page_size, page,
+            )
 
         try:
             record = service.fetch_and_build(rid, wfpsim_url=(url or "").strip())
         except NoResultsError:
             return _error_return(
-                i18n.t("wf_err_no_results"), sort_key, required, excluded, page
+                i18n.t("wf_err_no_results"), sort_key, required, excluded,
+                show_invalid, page_size, page,
             )
         except Exception as exc:  # noqa: BLE001
             return _error_return(
-                i18n.t("wf_err_fetch", error=str(exc)), sort_key, required, excluded, page
+                i18n.t("wf_err_fetch", error=str(exc)), sort_key, required, excluded,
+                show_invalid, page_size, page,
             )
 
         # Переносим служебные поля старой записи при замене ссылки
@@ -492,7 +530,9 @@ def build_wfpsim_tab(om):
             return (
                 [gr.update(value=i18n.t("wf_unknown_found")), gr.update(visible=False),
                  None, record, target]
-                + _refresh_tail(sort_key, required, excluded, page)
+                + _refresh_tail(
+                    sort_key, required, excluded, show_invalid, page_size, page
+                )
                 + _cls_show(unknown_items)
             )
 
@@ -507,7 +547,9 @@ def build_wfpsim_tab(om):
         return (
             [gr.update(value=msg), gr.update(visible=False),
              None, None, None]
-            + _refresh_tail(sort_key, required, excluded, page)
+            + _refresh_tail(
+                sort_key, required, excluded, show_invalid, page_size, page
+            )
             + _cls_reset()
         )
 
@@ -559,7 +601,9 @@ def build_wfpsim_tab(om):
         sort_key = args[cls_size + 4]
         required = args[cls_size + 5]
         excluded = args[cls_size + 6]
-        page = args[cls_size + 7]
+        show_invalid = args[cls_size + 7]
+        page_size = args[cls_size + 8]
+        page = args[cls_size + 9]
 
         # Защита от применения классификации без ожидающей записи.
         if not record:
@@ -568,7 +612,9 @@ def build_wfpsim_tab(om):
                     "wf_err_fetch",
                     error="no pending record after classification",
                 )), gr.update(visible=False), None, None, None]
-                + _refresh_tail(sort_key, required, excluded, page)
+                + _refresh_tail(
+                    sort_key, required, excluded, show_invalid, page_size, page
+                )
                 + _cls_reset()
             )
 
@@ -582,16 +628,21 @@ def build_wfpsim_tab(om):
         return (
             [gr.update(value=msg), gr.update(),
              None, None, None]
-            + _refresh_tail(sort_key, required, excluded, page)
+            + _refresh_tail(
+                sort_key, required, excluded, show_invalid, page_size, page
+            )
             + _cls_reset()
         )
 
     # --- События ---
 
-    refresh_inputs = [wf_sort, wf_required, wf_excluded, wf_page]
+    refresh_inputs = [
+        wf_sort, wf_required, wf_excluded, wf_show_invalid, wf_page_size, wf_page,
+    ]
     refresh_outputs = (
         slot_outputs
-        + [wf_prev_btn, wf_next_btn, wf_nav_label, wf_page, wf_records, wf_total_label]
+        + [wf_prev_btn, wf_next_btn, wf_page_num, wf_nav_label,
+           wf_page, wf_records, wf_total_label]
     )
 
     # Полный набор выходов для операций с диалогом/классификацией
@@ -599,19 +650,36 @@ def build_wfpsim_tab(om):
         [wf_status, wf_dialog, wf_replace_target,
          wf_pending_record, wf_pending_old_id]
         + slot_outputs
-        + [wf_prev_btn, wf_next_btn, wf_nav_label, wf_page, wf_records, wf_total_label]
+        + [wf_prev_btn, wf_next_btn, wf_page_num, wf_nav_label,
+           wf_page, wf_records, wf_total_label]
         + wf_cls_row_outputs
         + [wf_cls_prev_btn, wf_cls_next_btn, wf_cls_nav_label,
            wf_cls_items, wf_cls_page, wf_cls_apply_btn, wf_unknown_group]
     )
 
-    wf_sort.change(handle_refresh, refresh_inputs, refresh_outputs)
-    wf_required.change(handle_refresh, refresh_inputs, refresh_outputs)
-    wf_excluded.change(handle_refresh, refresh_inputs, refresh_outputs)
+    # Изменение фильтров/сортировки сбрасывает список на первую страницу
+    wf_sort.change(lambda: 1, [], [wf_page]).then(
+        handle_refresh, refresh_inputs, refresh_outputs
+    )
+    wf_required.change(lambda: 1, [], [wf_page]).then(
+        handle_refresh, refresh_inputs, refresh_outputs
+    )
+    wf_excluded.change(lambda: 1, [], [wf_page]).then(
+        handle_refresh, refresh_inputs, refresh_outputs
+    )
+    wf_show_invalid.change(lambda: 1, [], [wf_page]).then(
+        handle_refresh, refresh_inputs, refresh_outputs
+    )
+    wf_page_size.change(lambda: 1, [], [wf_page]).then(
+        handle_refresh, refresh_inputs, refresh_outputs
+    )
 
+    # Пагинация: вперёд/назад и переход к странице по номеру
     wf_prev_btn.click(lambda p: max(1, int(p or 1) - 1), [wf_page], [wf_page]) \
         .then(handle_refresh, refresh_inputs, refresh_outputs)
     wf_next_btn.click(lambda p: int(p or 1) + 1, [wf_page], [wf_page]) \
+        .then(handle_refresh, refresh_inputs, refresh_outputs)
+    wf_page_num.change(lambda v: int(v or 1), [wf_page_num], [wf_page]) \
         .then(handle_refresh, refresh_inputs, refresh_outputs)
 
     dialog_open_outputs = [wf_replace_target, wf_dialog, wf_url]
@@ -619,20 +687,25 @@ def build_wfpsim_tab(om):
     wf_cancel_btn.click(handle_cancel, [], [wf_replace_target, wf_dialog])
 
     continue_inputs = [
-        wf_url, wf_replace_target, wf_sort, wf_required, wf_excluded, wf_page,
+        wf_url, wf_replace_target, wf_sort, wf_required, wf_excluded,
+        wf_show_invalid, wf_page_size, wf_page,
     ]
     wf_continue_btn.click(handle_continue, continue_inputs, full_outputs)
 
     action_outputs = refresh_outputs
-    action_inputs = [wf_sort, wf_required, wf_excluded, wf_page, wf_records]
+    action_inputs = [
+        wf_sort, wf_required, wf_excluded, wf_show_invalid, wf_page_size,
+        wf_page, wf_records,
+    ]
     for i, slot in enumerate(slots):
         slot["delete"].click(make_action(i, "delete"), action_inputs, action_outputs)
         slot["invalid"].click(make_action(i, "invalid"), action_inputs, action_outputs)
         slot["copy"].click(
-            make_copy(i), [wf_page, wf_records], [wf_clipboard, wf_status]
+            make_copy(i), [wf_page, wf_page_size, wf_records], [wf_clipboard, wf_status]
         ).then(lambda c: c, [wf_clipboard], [wf_clipboard], js=JS_COPY_CLIPBOARD)
         slot["replace"].click(
-            make_replace_open(i), [wf_page, wf_records], dialog_open_outputs
+            make_replace_open(i), [wf_page, wf_page_size, wf_records],
+            dialog_open_outputs,
         )
 
     # Классификация
@@ -649,7 +722,8 @@ def build_wfpsim_tab(om):
         handle_wf_apply,
         inputs=[r["dd"] for r in wf_cls_rows]
                + [wf_cls_items, wf_cls_page, wf_pending_record, wf_pending_old_id,
-                  wf_sort, wf_required, wf_excluded, wf_page],
+                  wf_sort, wf_required, wf_excluded, wf_show_invalid,
+                  wf_page_size, wf_page],
         outputs=full_outputs,
     )
     for i, r in enumerate(wf_cls_rows):
@@ -663,7 +737,8 @@ def build_wfpsim_tab(om):
 
     lang_outputs = [
         wf_add_btn, dialog_heading, wf_url, wf_continue_btn, wf_cancel_btn,
-        wf_sort, wf_required, wf_excluded, wf_prev_btn, wf_next_btn,
+        wf_sort, wf_required, wf_excluded, wf_show_invalid, wf_page_size,
+        wf_page_num, wf_prev_btn, wf_next_btn,
     ]
     for slot in slots:
         lang_outputs += [
@@ -692,6 +767,9 @@ def build_wfpsim_tab(om):
             gr.update(label=i18n.t("wf_sort_label"), choices=wf_sort_choices()),
             gr.update(label=i18n.t("required_label")),
             gr.update(label=i18n.t("excluded_label")),
+            gr.update(label=i18n.t("wf_show_invalid")),
+            gr.update(label=i18n.t("wf_page_size_label")),
+            gr.update(label=i18n.t("page_label")),
             gr.update(value=i18n.t("wf_prev")),
             gr.update(value=i18n.t("wf_next")),
         ]

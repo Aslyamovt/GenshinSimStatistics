@@ -12,7 +12,16 @@ import html
 
 import gradio as gr
 
-from . import classifiers, config, downloader, filters, i18n, models, update
+from . import (
+    classifiers,
+    config,
+    downloader,
+    filters,
+    html_utils,
+    i18n,
+    models,
+    update,
+)
 from .classifier_ui import (
     MAX_CLS_ROWS,
     cls_n_pages as _cls_n_pages,
@@ -155,17 +164,11 @@ def record_card_html(record, dl: SimpactDownloader) -> str:
         avatar_box += badges
 
         # Иконка набора артефактов снизу-слева (поверх аватара).
-        # Белая обводка по контуру изображения есть, а квадратной рамки нет.
-        if art_srcs:
-            arts = "".join(
-                f'<img src="{s}" class="icon-outline" '
-                f'style="width:44px;height:44px;object-fit:cover;margin:1px;" '
-                f'title="{art_title}">'
-                for s in art_srcs[:2]
-            )
+        # При двух наборах — половинки иконок, разделённые по вертикали.
+        arts = html_utils.artifact_icons_html(art_srcs, art_title)
+        if arts:
             avatar_box += (
-                '<div style="position:absolute;bottom:2px;left:2px;display:flex;">'
-                + arts + '</div>'
+                '<div style="position:absolute;bottom:2px;left:2px;">' + arts + '</div>'
             )
 
         # Иконка оружия снизу-справа (поверх аватара)
@@ -520,11 +523,19 @@ def _build_dps_tab(om, ldb, dl, char_choices):
             cls_prev_btn, cls_next_btn, cls_nav_label, cls_page,
         ]
 
-        # Фильтры
-        filter_set.change(handlers["refresh"], refresh_inputs, refresh_outputs)
-        required.change(handlers["refresh"], refresh_inputs, refresh_outputs)
-        excluded.change(handlers["refresh"], refresh_inputs, refresh_outputs)
-        page_size.change(handlers["refresh"], refresh_inputs, refresh_outputs)
+        # Фильтры: смена фильтра/сортировки сбрасывает список на первую страницу
+        filter_set.change(lambda: 1, [], [page]).then(
+            handlers["refresh"], refresh_inputs, refresh_outputs
+        )
+        required.change(lambda: 1, [], [page]).then(
+            handlers["refresh"], refresh_inputs, refresh_outputs
+        )
+        excluded.change(lambda: 1, [], [page]).then(
+            handlers["refresh"], refresh_inputs, refresh_outputs
+        )
+        page_size.change(lambda: 1, [], [page]).then(
+            handlers["refresh"], refresh_inputs, refresh_outputs
+        )
         page.change(handlers["refresh"], refresh_inputs, refresh_outputs)
 
         # Пагинация

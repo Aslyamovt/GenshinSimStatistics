@@ -82,5 +82,2446 @@
     "created_at": "2026-08-26T20:42:09",
     "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
     "wfpsim_url": "https://wfpsim.com/sh/125b5d43-0a46-4a58-9f95-85d08bddc65d"
+  },
+  {
+    "_id": "b35fc838-06be-45a3-949a-a46901702914",
+    "mean_dps_per_target": 95991.00317721504,
+    "names": [
+      "chevreuse",
+      "fischl",
+      "klee",
+      "nicole"
+    ],
+    "composition": [
+      [
+        "chevreuse",
+        6
+      ],
+      [
+        "fischl",
+        6
+      ],
+      [
+        "klee",
+        0
+      ],
+      [
+        "nicole",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "klee",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "thewidsith",
+          "refine": 3
+        },
+        "sets": {
+          "adaycarvedfromrisingwinds": 4
+        }
+      },
+      {
+        "name": "nicole",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "oathsworneye",
+          "refine": 5
+        },
+        "sets": {
+          "celestialgift": 4
+        }
+      },
+      {
+        "name": "chevreuse",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "noblesseoblige": 4
+        }
+      },
+      {
+        "name": "fischl",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "thestringless",
+          "refine": 5
+        },
+        "sets": {
+          "tenacityofthemillelith": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187 pyro%=0.466;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nklee char lvl=90/90 cons=0 talent=9,9,9;\r\nklee add set=\"risingwinds\" count=4;\r\nklee add weapon=\"thewidsith\" refine=3 lvl=90/90;\r\nklee add stats hp=4780 atk=311 atk%=0.466 pyro%=0.466 cr=0.311;\r\nklee add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*10 er=0.0551*4 em=19.82*2 def=19.68*2;\r\n\r\nnicole char lvl=90/90 cons=0 talent=9,9,9;\r\nnicole add weapon=\"oathsworneye\" refine=5 lvl=90/90;\r\nnicole add set=\"cg\" count=4;\r\nnicole add stats hp=4780 atk=311 atk%=0.466*3;\r\nnicole add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*6 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*12 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\nchevreuse char lvl=90/90 cons=6 talent=9,9,9;\r\nchevreuse add weapon=\"favlance\" refine=3 lvl=90/90;\r\nchevreuse add set=\"no\" count=4;\r\nchevreuse add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\nchevreuse add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*8 cr=0.0331*10 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\n\r\nfischl char lvl=90/90 cons=6 talent=9,9,9;\r\nfischl add weapon=\"stringless\" refine=5 lvl=90/90;\r\nfischl add set=\"totm\" count=4;\r\nfischl add stats hp=4780 atk=311 atk%=0.466 electro%=0.466 cr=0.311; #main\r\nfischl add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*2 er=0.0551*4 em=19.82*2 cr=0.0331*10 cd=0.0662*12;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive fischl;\r\nfischl skill;\r\nfor let i=0; i<5; i=i+1 {\r\n  chev burst, attack, skill[hold=1], attack;\r\n  nicole skill, burst;\r\n  if .fischl.burst.ready{\r\n    fischl burst, attack;\r\n  }\r\n  else{\r\n    fischl skill, attack;\r\n  }\r\n  //klee attack, skill, burst;\r\n  //klee attack:6, skill, attack:6;\r\n  //klee attack:2, charge, attack;\r\n  klee attack, burst, walk;\r\n  klee attack:3, skill;\r\n  klee attack:6;\r\n  klee attack:2, charge, attack;\r\n  klee attack, charge, attack:2;\r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-26T23:37:55",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/b35fc838-06be-45a3-949a-a46901702914"
+  },
+  {
+    "_id": "f8842196-c0cf-4df1-8bbd-077047d01fbc",
+    "mean_dps_per_target": 107662.84939768397,
+    "names": [
+      "chevreuse",
+      "fischl",
+      "klee",
+      "nicole"
+    ],
+    "composition": [
+      [
+        "chevreuse",
+        6
+      ],
+      [
+        "fischl",
+        6
+      ],
+      [
+        "klee",
+        1
+      ],
+      [
+        "nicole",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "klee",
+        "cons": 1,
+        "level": 90,
+        "weapon": {
+          "name": "thewidsith",
+          "refine": 3
+        },
+        "sets": {
+          "adaycarvedfromrisingwinds": 4
+        }
+      },
+      {
+        "name": "nicole",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "oathsworneye",
+          "refine": 5
+        },
+        "sets": {
+          "celestialgift": 4
+        }
+      },
+      {
+        "name": "chevreuse",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "noblesseoblige": 4
+        }
+      },
+      {
+        "name": "fischl",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "thestringless",
+          "refine": 5
+        },
+        "sets": {
+          "tenacityofthemillelith": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187 pyro%=0.466;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nklee char lvl=90/90 cons=1 talent=9,9,9;\r\nklee add set=\"risingwinds\" count=4;\r\nklee add weapon=\"thewidsith\" refine=3 lvl=90/90;\r\nklee add stats hp=4780 atk=311 atk%=0.466 pyro%=0.466 cr=0.311;\r\nklee add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*10 er=0.0551*4 em=19.82*2 def=19.68*2;\r\n\r\nnicole char lvl=90/90 cons=0 talent=9,9,9;\r\nnicole add weapon=\"oathsworneye\" refine=5 lvl=90/90;\r\nnicole add set=\"cg\" count=4;\r\nnicole add stats hp=4780 atk=311 atk%=0.466*3;\r\nnicole add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*6 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*12 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\nchevreuse char lvl=90/90 cons=6 talent=9,9,9;\r\nchevreuse add weapon=\"favlance\" refine=3 lvl=90/90;\r\nchevreuse add set=\"no\" count=4;\r\nchevreuse add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\nchevreuse add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*8 cr=0.0331*10 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\n\r\nfischl char lvl=90/90 cons=6 talent=9,9,9;\r\nfischl add weapon=\"stringless\" refine=5 lvl=90/90;\r\nfischl add set=\"totm\" count=4;\r\nfischl add stats hp=4780 atk=311 atk%=0.466 electro%=0.466 cr=0.311; #main\r\nfischl add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*2 er=0.0551*4 em=19.82*2 cr=0.0331*10 cd=0.0662*12;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive fischl;\r\nfischl skill;\r\nfor let i=0; i<5; i=i+1 {\r\n  chev burst, attack, skill[hold=1], attack;\r\n  nicole skill, burst;\r\n  if .fischl.burst.ready{\r\n    fischl burst, attack;\r\n  }\r\n  else{\r\n    fischl skill, attack;\r\n  }\r\n  //klee attack, skill, burst;\r\n  //klee attack:6, skill, attack:6;\r\n  //klee attack:2, charge, attack;\r\n  klee attack, burst, walk;\r\n  klee attack:3, skill;\r\n  klee attack:6;\r\n  klee attack:2, charge, attack;\r\n  klee attack, charge, attack:2;\r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-26T23:39:13",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/f8842196-c0cf-4df1-8bbd-077047d01fbc"
+  },
+  {
+    "_id": "8db462cd-df6c-4e60-a117-9ea1f0dcd84e",
+    "mean_dps_per_target": 101052.3994922986,
+    "names": [
+      "chevreuse",
+      "durin",
+      "fischl",
+      "klee"
+    ],
+    "composition": [
+      [
+        "chevreuse",
+        6
+      ],
+      [
+        "durin",
+        0
+      ],
+      [
+        "fischl",
+        6
+      ],
+      [
+        "klee",
+        1
+      ]
+    ],
+    "team": [
+      {
+        "name": "klee",
+        "cons": 1,
+        "level": 90,
+        "weapon": {
+          "name": "thewidsith",
+          "refine": 3
+        },
+        "sets": {
+          "adaycarvedfromrisingwinds": 4
+        }
+      },
+      {
+        "name": "durin",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "wolffang",
+          "refine": 1
+        },
+        "sets": {
+          "adaycarvedfromrisingwinds": 5
+        }
+      },
+      {
+        "name": "chevreuse",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "noblesseoblige": 4
+        }
+      },
+      {
+        "name": "fischl",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "thestringless",
+          "refine": 5
+        },
+        "sets": {
+          "celestialgift": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187 pyro%=0.466;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nklee char lvl=90/90 cons=1 talent=9,9,9;\r\nklee add set=\"risingwinds\" count=4;\r\nklee add weapon=\"thewidsith\" refine=3 lvl=90/90;\r\nklee add stats hp=4780 atk=311 atk%=0.466 pyro%=0.466 cr=0.311;\r\nklee add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*11 hp%=0.0496*2 cr=0.0331*9 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\ndurin char lvl=90/90 cons=0 talent=9,9,9; \r\ndurin add weapon=\"wolffang\" refine=1 lvl=90/90;\r\ndurin add set=\"risingwinds\" count=5;\r\ndurin add stats hp=4780 atk=311 atk%=0.466 pyro%=0.466 cd=0.622;\r\ndurin add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*10 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\nchevreuse char lvl=90/90 cons=6 talent=9,9,9;\r\nchevreuse add weapon=\"favlance\" refine=3 lvl=90/90;\r\nchevreuse add set=\"no\" count=4;\r\nchevreuse add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\nchevreuse add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*6 cr=0.0331*10 er=0.0551*8 em=19.82*2 def=19.68*2;\r\n\r\n\r\nfischl char lvl=90/90 cons=6 talent=9,9,9;\r\nfischl add weapon=\"stringless\" refine=5 lvl=90/90;\r\nfischl add set=\"cg\" count=4;\r\nfischl add stats hp=4780 atk=311 atk%=0.466 electro%=0.466 cr=0.311; #main\r\nfischl add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*2 er=0.0551*4 em=19.82*2 cr=0.0331*10 cd=0.0662*12;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive fischl;\r\nfischl skill;\r\nfor let i=0; i<5; i=i+1 {\r\n  durin skill:2, burst;\r\n  chev burst, skill[hold=1]:2;\r\n  if .fischl.burst.ready{\r\n    fischl burst, attack;\r\n  }\r\n  else{\r\n    fischl skill, attack;\r\n  }\r\n  //klee attack, skill, burst;\r\n  //klee attack:6, skill, attack:6;\r\n  //klee attack:2, charge, attack;\r\n  klee attack;\r\n  if .klee.skill.ready {\r\n    klee skill[release=0];\r\n  }\r\n  klee burst, walk;\r\n  klee attack:3;\r\n  if .klee.skill.ready {\r\n    klee skill[bounce=3, mine=8];\r\n  }\r\n  klee attack:6;\r\n    if i == 4 {\r\n    klee attack:3;\r\n    if .klee.skill.ready {\r\n    klee skill[bounce=3, mine=8];\r\n    }\r\n    klee attack, charge, attack;\r\n  } else {\r\n    klee attack, charge, attack, charge, attack:3;\r\n    }\r\n\r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-26T23:49:54",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/8db462cd-df6c-4e60-a117-9ea1f0dcd84e"
+  },
+  {
+    "_id": "e91e8b07-8632-461e-9c84-8e99f8bf1042",
+    "mean_dps_per_target": 90903.86657939124,
+    "names": [
+      "chevreuse",
+      "durin",
+      "fischl",
+      "klee"
+    ],
+    "composition": [
+      [
+        "chevreuse",
+        6
+      ],
+      [
+        "durin",
+        0
+      ],
+      [
+        "fischl",
+        6
+      ],
+      [
+        "klee",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "klee",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "thewidsith",
+          "refine": 3
+        },
+        "sets": {
+          "adaycarvedfromrisingwinds": 4
+        }
+      },
+      {
+        "name": "durin",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "wolffang",
+          "refine": 1
+        },
+        "sets": {
+          "adaycarvedfromrisingwinds": 5
+        }
+      },
+      {
+        "name": "chevreuse",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "noblesseoblige": 4
+        }
+      },
+      {
+        "name": "fischl",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "thestringless",
+          "refine": 5
+        },
+        "sets": {
+          "celestialgift": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187 pyro%=0.466;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nklee char lvl=90/90 cons=0 talent=9,9,9;\r\nklee add set=\"risingwinds\" count=4;\r\nklee add weapon=\"thewidsith\" refine=3 lvl=90/90;\r\nklee add stats hp=4780 atk=311 atk%=0.466 pyro%=0.466 cr=0.311;\r\nklee add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*11 hp%=0.0496*2 cr=0.0331*9 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\ndurin char lvl=90/90 cons=0 talent=9,9,9; \r\ndurin add weapon=\"wolffang\" refine=1 lvl=90/90;\r\ndurin add set=\"risingwinds\" count=5;\r\ndurin add stats hp=4780 atk=311 atk%=0.466 pyro%=0.466 cd=0.622;\r\ndurin add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*10 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\nchevreuse char lvl=90/90 cons=6 talent=9,9,9;\r\nchevreuse add weapon=\"favlance\" refine=3 lvl=90/90;\r\nchevreuse add set=\"no\" count=4;\r\nchevreuse add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\nchevreuse add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*6 cr=0.0331*10 er=0.0551*8 em=19.82*2 def=19.68*2;\r\n\r\n\r\nfischl char lvl=90/90 cons=6 talent=9,9,9;\r\nfischl add weapon=\"stringless\" refine=5 lvl=90/90;\r\nfischl add set=\"cg\" count=4;\r\nfischl add stats hp=4780 atk=311 atk%=0.466 electro%=0.466 cr=0.311; #main\r\nfischl add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*2 er=0.0551*4 em=19.82*2 cr=0.0331*10 cd=0.0662*12;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive fischl;\r\nfischl skill;\r\nfor let i=0; i<5; i=i+1 {\r\n  durin skill:2, burst;\r\n  chev burst, skill[hold=1]:2;\r\n  if .fischl.burst.ready{\r\n    fischl burst, attack;\r\n  }\r\n  else{\r\n    fischl skill, attack;\r\n  }\r\n  //klee attack, skill, burst;\r\n  //klee attack:6, skill, attack:6;\r\n  //klee attack:2, charge, attack;\r\n  klee attack;\r\n  if .klee.skill.ready {\r\n    klee skill[release=0];\r\n  }\r\n  klee burst, walk;\r\n  klee attack:3;\r\n  if .klee.skill.ready {\r\n    klee skill[bounce=3, mine=8];\r\n  }\r\n  klee attack:6;\r\n    if i == 4 {\r\n    klee attack:3;\r\n    if .klee.skill.ready {\r\n    klee skill[bounce=3, mine=8];\r\n    }\r\n    klee attack, charge, attack;\r\n  } else {\r\n    klee attack, charge, attack, charge, attack:3;\r\n    }\r\n\r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-26T23:50:38",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/e91e8b07-8632-461e-9c84-8e99f8bf1042"
+  },
+  {
+    "_id": "e68bdbe3-3bf8-407f-a509-94e463c79cea",
+    "mean_dps_per_target": 115102.45642220973,
+    "names": [
+      "chevreuse",
+      "fischl",
+      "klee",
+      "nicole"
+    ],
+    "composition": [
+      [
+        "chevreuse",
+        6
+      ],
+      [
+        "fischl",
+        6
+      ],
+      [
+        "klee",
+        1
+      ],
+      [
+        "nicole",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "klee",
+        "cons": 1,
+        "level": 90,
+        "weapon": {
+          "name": "thewidsith",
+          "refine": 3
+        },
+        "sets": {
+          "adaycarvedfromrisingwinds": 4
+        }
+      },
+      {
+        "name": "nicole",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "oathsworneye",
+          "refine": 5
+        },
+        "sets": {
+          "celestialgift": 4
+        }
+      },
+      {
+        "name": "chevreuse",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "noblesseoblige": 4
+        }
+      },
+      {
+        "name": "fischl",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "thestringless",
+          "refine": 5
+        },
+        "sets": {
+          "tenacityofthemillelith": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187 pyro%=0.466;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nklee char lvl=90/90 cons=1 talent=9,9,9;\r\nklee add set=\"risingwinds\" count=4;\r\nklee add weapon=\"thewidsith\" refine=3 lvl=90/90;\r\nklee add stats hp=4780 atk=311 atk%=0.466 pyro%=0.466 cr=0.311;\r\nklee add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*10 er=0.0551*4 em=19.82*2 def=19.68*2;\r\n\r\nnicole char lvl=90/90 cons=0 talent=9,9,9;\r\nnicole add weapon=\"oathsworneye\" refine=5 lvl=90/90;\r\nnicole add set=\"cg\" count=4;\r\nnicole add stats hp=4780 atk=311 atk%=0.466*3;\r\nnicole add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*6 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*12 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\nchevreuse char lvl=90/90 cons=6 talent=9,9,9;\r\nchevreuse add weapon=\"favlance\" refine=3 lvl=90/90;\r\nchevreuse add set=\"no\" count=4;\r\nchevreuse add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\nchevreuse add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*8 cr=0.0331*10 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\n\r\nfischl char lvl=90/90 cons=6 talent=9,9,9;\r\nfischl add weapon=\"stringless\" refine=5 lvl=90/90;\r\nfischl add set=\"totm\" count=4;\r\nfischl add stats hp=4780 atk=311 atk%=0.466 electro%=0.466 cr=0.311; #main\r\nfischl add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*2 er=0.0551*4 em=19.82*2 cr=0.0331*10 cd=0.0662*12;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive fischl;\r\nfischl skill;\r\nfor let i=0; i<5; i=i+1 {\r\n  chev burst, attack, skill[hold=1], attack;\r\n  nicole skill, burst;\r\n  if .fischl.burst.ready{\r\n    fischl burst, attack;\r\n  }\r\n  else{\r\n    fischl skill, attack;\r\n  }\r\n  //klee attack, skill, burst;\r\n  //klee attack:6, skill, attack:6;\r\n  //klee attack:2, charge, attack;\r\n  klee attack;\r\n  if .klee.skill.ready {\r\n    klee skill[release=0];\r\n  }\r\n  klee burst, walk;\r\n  klee attack:3;\r\n  if .klee.skill.ready {\r\n    klee skill[bounce=3, mine=8];\r\n  }\r\n  klee attack:6;\r\n    if i == 4 {\r\n    klee attack:3;\r\n    if .klee.skill.ready {\r\n    klee skill[bounce=3, mine=8];\r\n    }\r\n    klee attack, charge, attack;\r\n  } else {\r\n    klee attack, charge, attack, charge, attack:3;\r\n    }\r\n\r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-26T23:51:49",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/e68bdbe3-3bf8-407f-a509-94e463c79cea"
+  },
+  {
+    "_id": "7de43652-7a80-4445-95a5-8405e52ad5bd",
+    "mean_dps_per_target": 102905.23555157383,
+    "names": [
+      "chevreuse",
+      "fischl",
+      "klee",
+      "nicole"
+    ],
+    "composition": [
+      [
+        "chevreuse",
+        6
+      ],
+      [
+        "fischl",
+        6
+      ],
+      [
+        "klee",
+        0
+      ],
+      [
+        "nicole",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "klee",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "thewidsith",
+          "refine": 3
+        },
+        "sets": {
+          "adaycarvedfromrisingwinds": 4
+        }
+      },
+      {
+        "name": "nicole",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "oathsworneye",
+          "refine": 5
+        },
+        "sets": {
+          "celestialgift": 4
+        }
+      },
+      {
+        "name": "chevreuse",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "noblesseoblige": 4
+        }
+      },
+      {
+        "name": "fischl",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "thestringless",
+          "refine": 5
+        },
+        "sets": {
+          "tenacityofthemillelith": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187 pyro%=0.466;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nklee char lvl=90/90 cons=0 talent=9,9,9;\r\nklee add set=\"risingwinds\" count=4;\r\nklee add weapon=\"thewidsith\" refine=3 lvl=90/90;\r\nklee add stats hp=4780 atk=311 atk%=0.466 pyro%=0.466 cr=0.311;\r\nklee add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*10 er=0.0551*4 em=19.82*2 def=19.68*2;\r\n\r\nnicole char lvl=90/90 cons=0 talent=9,9,9;\r\nnicole add weapon=\"oathsworneye\" refine=5 lvl=90/90;\r\nnicole add set=\"cg\" count=4;\r\nnicole add stats hp=4780 atk=311 atk%=0.466*3;\r\nnicole add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*6 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*12 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\nchevreuse char lvl=90/90 cons=6 talent=9,9,9;\r\nchevreuse add weapon=\"favlance\" refine=3 lvl=90/90;\r\nchevreuse add set=\"no\" count=4;\r\nchevreuse add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\nchevreuse add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*8 cr=0.0331*10 er=0.0551*6 em=19.82*2 def=19.68*2;\r\n\r\n\r\nfischl char lvl=90/90 cons=6 talent=9,9,9;\r\nfischl add weapon=\"stringless\" refine=5 lvl=90/90;\r\nfischl add set=\"totm\" count=4;\r\nfischl add stats hp=4780 atk=311 atk%=0.466 electro%=0.466 cr=0.311; #main\r\nfischl add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*2 er=0.0551*4 em=19.82*2 cr=0.0331*10 cd=0.0662*12;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive fischl;\r\nfischl skill;\r\nfor let i=0; i<5; i=i+1 {\r\n  chev burst, attack, skill[hold=1], attack;\r\n  nicole skill, burst;\r\n  if .fischl.burst.ready{\r\n    fischl burst, attack;\r\n  }\r\n  else{\r\n    fischl skill, attack;\r\n  }\r\n  //klee attack, skill, burst;\r\n  //klee attack:6, skill, attack:6;\r\n  //klee attack:2, charge, attack;\r\n  klee attack;\r\n  if .klee.skill.ready {\r\n    klee skill[release=0];\r\n  }\r\n  klee burst, walk;\r\n  klee attack:3;\r\n  if .klee.skill.ready {\r\n    klee skill[bounce=3, mine=8];\r\n  }\r\n  klee attack:6;\r\n    if i == 4 {\r\n    klee attack:3;\r\n    if .klee.skill.ready {\r\n    klee skill[bounce=3, mine=8];\r\n    }\r\n    klee attack, charge, attack;\r\n  } else {\r\n    klee attack, charge, attack, charge, attack:3;\r\n    }\r\n\r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-26T23:53:03",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/7de43652-7a80-4445-95a5-8405e52ad5bd"
+  },
+  {
+    "_id": "dd9f54bd-20f4-4e70-bf2f-3d110a010770",
+    "mean_dps_per_target": 111746.96153566596,
+    "names": [
+      "bennett",
+      "chevreuse",
+      "fischl",
+      "klee"
+    ],
+    "composition": [
+      [
+        "bennett",
+        6
+      ],
+      [
+        "chevreuse",
+        6
+      ],
+      [
+        "fischl",
+        6
+      ],
+      [
+        "klee",
+        1
+      ]
+    ],
+    "team": [
+      {
+        "name": "klee",
+        "cons": 1,
+        "level": 90,
+        "weapon": {
+          "name": "thewidsith",
+          "refine": 3
+        },
+        "sets": {
+          "adaycarvedfromrisingwinds": 4
+        }
+      },
+      {
+        "name": "bennett",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "thealleyflash",
+          "refine": 1
+        },
+        "sets": {
+          "noblesseoblige": 5
+        }
+      },
+      {
+        "name": "chevreuse",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "scrolloftheheroofcindercity": 4
+        }
+      },
+      {
+        "name": "fischl",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "thestringless",
+          "refine": 5
+        },
+        "sets": {
+          "tenacityofthemillelith": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187 pyro%=0.466;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nklee char lvl=90/90 cons=1 talent=9,9,9;\r\nklee add set=\"risingwinds\" count=4;\r\nklee add weapon=\"thewidsith\" refine=3 lvl=90/90;\r\nklee add stats hp=4780 atk=311 atk%=0.466 pyro%=0.466 cr=0.311;\r\nklee add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*10 er=0.0551*4 em=19.82*2 def=19.68*2;\r\n\r\nbennett char lvl=90/90 cons=6 talent=9,9,9; \r\nbennett add weapon=\"thealleyflash\" refine=1 lvl=90/90;\r\nbennett add set=\"no\" count=5;\r\nbennett add stats hp=4780 atk=311 er=0.518 pyro%=0.466 cr=0.311 ; #main\r\nbennett add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*4 er=0.0551*2 em=19.82*2 cr=0.0331*10 cd=0.0662*12;\r\n\r\nchevreuse char lvl=90/90 cons=6 talent=9,9,9; \r\nchevreuse add weapon=\"favoniuslance\" refine=3 lvl=90/90;\r\nchevreuse add set=\"scroll\" count=4;\r\nchevreuse add stats hp=4780 atk=311 er=0.518 pyro%=0.466 cr=0.311 ; #main\r\nchevreuse add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*3 er=0.0551*3 em=19.82*2 cr=0.0331*10 cd=0.0662*12;\r\n\r\nfischl char lvl=90/90 cons=6 talent=9,9,9;\r\nfischl add weapon=\"stringless\" refine=5 lvl=90/90;\r\nfischl add set=\"totm\" count=4;\r\nfischl add stats hp=4780 atk=311 atk%=0.466 electro%=0.466 cr=0.311; #main\r\nfischl add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*2 er=0.0551*4 em=19.82*2 cr=0.0331*10 cd=0.0662*12;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nactive bennett;\r\nfor let i = 0; i < 6; i = i + 1 { # 5 rotations\r\n\r\n  bennett skill, burst;\r\n  \r\n  if .fischl.skill.ready {\r\n    fischl attack, skill;\r\n  } else if .fischl.burst.ready {\r\n    fischl attack:2, burst;\r\n  }\r\n  chev swap;\r\n  delay(4);\r\n  chevreuse burst, skill[hold=1]:2;\r\n\r\n  klee attack;\r\n  if .klee.skill.ready {\r\n    klee skill[release=0];\r\n  }\r\n  klee burst, walk;\r\n  klee attack:3;\r\n  if .klee.skill.ready {\r\n    klee skill[bounce=3, mine=8];\r\n  }\r\n  klee attack:6;\r\n    if i == 4 {\r\n    klee attack:3;\r\n    if .klee.skill.ready {\r\n    klee skill[bounce=3, mine=8];\r\n    }\r\n    klee attack, charge, attack;\r\n  } else {\r\n    klee attack, charge, attack, charge, attack:3;\r\n    }\r\n}\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-26T23:58:25",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/dd9f54bd-20f4-4e70-bf2f-3d110a010770"
+  },
+  {
+    "_id": "5b714816-d6f3-403c-81e6-76e583400c33",
+    "mean_dps_per_target": 147059.30141674427,
+    "names": [
+      "odette",
+      "qiqi",
+      "sandrone",
+      "yaemiko"
+    ],
+    "composition": [
+      [
+        "odette",
+        0
+      ],
+      [
+        "qiqi",
+        1
+      ],
+      [
+        "sandrone",
+        0
+      ],
+      [
+        "yaemiko",
+        1
+      ]
+    ],
+    "team": [
+      {
+        "name": "sandrone",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "tidalshadow",
+          "refine": 5
+        },
+        "sets": {
+          "disenchantmentinthedeepshadow": 4
+        }
+      },
+      {
+        "name": "yaemiko",
+        "cons": 1,
+        "level": 90,
+        "weapon": {
+          "name": "thewidsith",
+          "refine": 3
+        },
+        "sets": {
+          "disenchantmentinthedeepshadow": 5
+        }
+      },
+      {
+        "name": "odette",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "exaiphanesblade",
+          "refine": 5
+        },
+        "sets": {
+          "heartofthefurnace": 4
+        }
+      },
+      {
+        "name": "qiqi",
+        "cons": 1,
+        "level": 90,
+        "weapon": {
+          "name": "favoniussword",
+          "refine": 3
+        },
+        "sets": {
+          "tenacityofthemillelith": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187 cryo%=0.466 pyro%=0.466 electro%=0.466;\r\n//def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*4 er=0.0551*2 em=19.82*2 cr=0.0331*10 cd=0.0662*12;\r\n\r\nsandrone char lvl=90/90 cons=0 talent=9,9,9;\r\nsandrone add set=\"disenchantmentinthedeepshadow\" count=4;\r\n#sandrone add weapon=\"mailedflower\" refine=5 lvl=90/90;\r\nsandrone add weapon=\"tidalshadow\" refine=5 lvl=90/90;\r\nsandrone add stats hp=4780 atk=311 atk%=0.466*2 cr=0.311;\r\nsandrone add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*10 er=0.0551*4 em=19.82*2 def=19.68*2;\r\n\r\nyae char lvl=90/90 cons=1 talent=9,9,9; \r\nyae add weapon=\"widsith\" refine=3 lvl=90/90;\r\nyae add set=\"disenchantmentinthedeepshadow\" count=5;\r\nyae add stats hp=4780 atk=311 atk%=0.466*2 cr=0.311; #main\r\nyae add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*4 er=0.0551*2 em=19.82*2 cr=0.0331*10 cd=0.0662*12;\r\n\r\nodette char lvl=90/90 cons=0 talent=9,9,9; \r\nodette add weapon=\"exaiphanesblade\" refine=5 lvl=90/90;\r\nodette add set=\"heartofthefurnace\" count=4;\r\nodette add stats hp=4780 atk=311 atk%=0.466*2 cd=0.622 ; #main\r\nodette add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*4 er=0.0551*2 em=19.82*2 cr=0.0331*12 cd=0.0662*10;\r\n\r\nqiqi char lvl=90/90 cons=1 talent=9,9,9;\r\nqiqi add weapon=\"favsword\" refine=3 lvl=90/90;\r\nqiqi add set=\"totm\" count=4;\r\nqiqi add stats hp=4780 atk=311 atk%=0.466 cryo%=0.466 cr=0.311; #main\r\nqiqi add stats def%=0.062*2 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*2 er=0.0551*6 em=19.82*2 cr=0.0331*10 cd=0.0662*10;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nactive yae;\r\nfor let i = 0; i < 6; i = i + 1 { # 5 rotations\r\n\r\n  yae skill:3;\r\n  \r\n  odette skill:2;\r\n  \r\n  qiqi skill, attack;\r\n  \r\n  sandrone skill, charge, skill, burst;\r\n  sandrone charge, skill;\r\n  sandrone charge, skill;\r\n}\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T16:16:36",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/5b714816-d6f3-403c-81e6-76e583400c33"
+  },
+  {
+    "_id": "7a881d30-cc2d-40b2-9a10-47f689784dc8",
+    "mean_dps_per_target": 112336.33650624518,
+    "names": [
+      "aino",
+      "gorou",
+      "illuga",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "aino",
+        6
+      ],
+      [
+        "gorou",
+        6
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "aino",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniusgreatsword",
+          "refine": 3
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      },
+      {
+        "name": "gorou",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuswarbow",
+          "refine": 4
+        },
+        "sets": {
+          "instructor": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "gildeddreams": 2,
+          "wandererstroupe": 2
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\naino char lvl=90/90 cons=6 talent=9,9,9;\r\naino add weapon=\"favoniusgreatsword\" refine=3 lvl=90/90;\r\naino add set=\"silkenmoonsserenade\" count=4;\r\naino add stats hp=4780 atk=311 em=187 em=187 cr=0.311;\r\naino add stats def%=0.124 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.0992 er=0.0551*4 em=79.28 cr=0.0331*10 cd=0.0662*10;\r\n\r\ngorou char lvl=90/90 cons=6 talent=9,9,9;\r\ngorou add weapon=\"favoniuswarbow\" refine=4 lvl=90/90;\r\ngorou add set=\"instructor\" count=4; \r\ngorou add stats hp=3571 atk=232 er=0.518 def%=0.435 cr=0.311*0.8; #mainstats\r\ngorou add stats def%=0.062*2*0.8 def=19.68*2*0.8 hp=253.94*2*0.8 def%=0.062*2*0.8 atk=16.54*2*0.8 atk%=0.0496*2*0.8 er=0.0551*6*0.8 em=19.82*2*0.8 cr=0.0331*8*0.8 cd=0.0662*4*0.8;\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"favlance\" refine=3 lvl=90/90;\r\n#illuga add set=\"silkenmoonsserenade\" count=4;\r\nilluga add set=\"gd\" count=2;\r\nilluga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*2 cr=0.311;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*10 er=0.0551*6 em=19.82*8 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive illuga;\r\nfor let i=0; i<6; i=i+1 {\r\n  illuga skill, burst;\r\n  \r\n  aino skill, attack, burst;\r\n  \r\n  gorou skill, burst;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;  \r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T20:06:33",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/7a881d30-cc2d-40b2-9a10-47f689784dc8"
+  },
+  {
+    "_id": "cabb4c09-d368-4511-bcc1-e20be88ba778",
+    "mean_dps_per_target": 89781.11407886543,
+    "names": [
+      "aino",
+      "gorou",
+      "illuga",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "aino",
+        4
+      ],
+      [
+        "gorou",
+        4
+      ],
+      [
+        "illuga",
+        4
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "aino",
+        "cons": 4,
+        "level": 90,
+        "weapon": {
+          "name": "favoniusgreatsword",
+          "refine": 3
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      },
+      {
+        "name": "gorou",
+        "cons": 4,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuswarbow",
+          "refine": 4
+        },
+        "sets": {
+          "instructor": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 4,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "gildeddreams": 2,
+          "wandererstroupe": 2
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\naino char lvl=90/90 cons=4 talent=9,9,9;\r\naino add weapon=\"favoniusgreatsword\" refine=3 lvl=90/90;\r\naino add set=\"silkenmoonsserenade\" count=4;\r\naino add stats hp=4780 atk=311 em=187 em=187 cr=0.311;\r\naino add stats def%=0.124 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.0992 er=0.0551*4 em=79.28 cr=0.0331*10 cd=0.0662*10;\r\n\r\ngorou char lvl=90/90 cons=4 talent=9,9,9;\r\ngorou add weapon=\"favoniuswarbow\" refine=4 lvl=90/90;\r\ngorou add set=\"instructor\" count=4; \r\ngorou add stats hp=3571 atk=232 er=0.518 def%=0.435 cr=0.311*0.8; #mainstats\r\ngorou add stats def%=0.062*2*0.8 def=19.68*2*0.8 hp=253.94*2*0.8 def%=0.062*2*0.8 atk=16.54*2*0.8 atk%=0.0496*2*0.8 er=0.0551*6*0.8 em=19.82*2*0.8 cr=0.0331*8*0.8 cd=0.0662*4*0.8;\r\n\r\n\r\nilluga char lvl=90/90 cons=4 talent=9,9,9;\r\nilluga add weapon=\"favlance\" refine=3 lvl=90/90;\r\n#illuga add set=\"silkenmoonsserenade\" count=4;\r\nilluga add set=\"gd\" count=2;\r\nilluga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*2 cr=0.311;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*10 er=0.0551*6 em=19.82*8 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive illuga;\r\nfor let i=0; i<6; i=i+1 {\r\n  illuga skill, burst;\r\n  \r\n  aino skill, attack, burst;\r\n  \r\n  gorou skill, burst;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;  \r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T20:07:40",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/cabb4c09-d368-4511-bcc1-e20be88ba778"
+  },
+  {
+    "_id": "8e3dc3ed-66e9-4e70-a9ca-564bc14400ff",
+    "mean_dps_per_target": 83510.39382198082,
+    "names": [
+      "aino",
+      "gorou",
+      "illuga",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "aino",
+        2
+      ],
+      [
+        "gorou",
+        2
+      ],
+      [
+        "illuga",
+        2
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "aino",
+        "cons": 2,
+        "level": 90,
+        "weapon": {
+          "name": "favoniusgreatsword",
+          "refine": 3
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      },
+      {
+        "name": "gorou",
+        "cons": 2,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuswarbow",
+          "refine": 4
+        },
+        "sets": {
+          "instructor": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 2,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "gildeddreams": 2,
+          "wandererstroupe": 2
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\naino char lvl=90/90 cons=2 talent=9,9,9;\r\naino add weapon=\"favoniusgreatsword\" refine=3 lvl=90/90;\r\naino add set=\"silkenmoonsserenade\" count=4;\r\naino add stats hp=4780 atk=311 em=187 em=187 cr=0.311;\r\naino add stats def%=0.124 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.0992 er=0.0551*4 em=79.28 cr=0.0331*10 cd=0.0662*10;\r\n\r\ngorou char lvl=90/90 cons=2 talent=9,9,9;\r\ngorou add weapon=\"favoniuswarbow\" refine=4 lvl=90/90;\r\ngorou add set=\"instructor\" count=4; \r\ngorou add stats hp=3571 atk=232 er=0.518 def%=0.435 cr=0.311*0.8; #mainstats\r\ngorou add stats def%=0.062*2*0.8 def=19.68*2*0.8 hp=253.94*2*0.8 def%=0.062*2*0.8 atk=16.54*2*0.8 atk%=0.0496*2*0.8 er=0.0551*6*0.8 em=19.82*2*0.8 cr=0.0331*8*0.8 cd=0.0662*4*0.8;\r\n\r\n\r\nilluga char lvl=90/90 cons=2 talent=9,9,9;\r\nilluga add weapon=\"favlance\" refine=3 lvl=90/90;\r\n#illuga add set=\"silkenmoonsserenade\" count=4;\r\nilluga add set=\"gd\" count=2;\r\nilluga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*2 cr=0.311;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*10 er=0.0551*6 em=19.82*8 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive illuga;\r\nfor let i=0; i<6; i=i+1 {\r\n  illuga skill, burst;\r\n  \r\n  aino skill, attack, burst;\r\n  \r\n  gorou skill, burst;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;  \r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T20:08:32",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/8e3dc3ed-66e9-4e70-a9ca-564bc14400ff"
+  },
+  {
+    "_id": "27fc8240-797e-45c7-ba0a-30134592495b",
+    "mean_dps_per_target": 144989.34488319853,
+    "names": [
+      "columbina",
+      "gorou",
+      "illuga",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "columbina",
+        0
+      ],
+      [
+        "gorou",
+        6
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuscodex",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "gorou",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuswarbow",
+          "refine": 4
+        },
+        "sets": {
+          "instructor": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"favoniuscodex\" refine=5 lvl=90/90;\r\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\n//columbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\ngorou char lvl=90/90 cons=6 talent=9,9,9;\r\ngorou add weapon=\"favoniuswarbow\" refine=4 lvl=90/90;\r\ngorou add set=\"instructor\" count=4; \r\ngorou add stats hp=3571 atk=232 er=0.518 def%=0.435 cr=0.311*0.8; #mainstats\r\ngorou add stats def%=0.062*2*0.8 def=19.68*2*0.8 hp=253.94*2*0.8 def%=0.062*2*0.8 atk=16.54*2*0.8 atk%=0.0496*2*0.8 er=0.0551*6*0.8 em=19.82*2*0.8 cr=0.0331*8*0.8 cd=0.0662*4*0.8;\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"favlance\" refine=3 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n#illuga add set=\"gd\" count=2;\r\n#illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*2 cr=0.311;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*10 er=0.0551*6 em=19.82*8 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive columbina;\r\nfor let i=0; i<6; i=i+1 {\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  illuga skill, burst;\r\n  \r\n  gorou skill, burst;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T20:15:03",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/27fc8240-797e-45c7-ba0a-30134592495b"
+  },
+  {
+    "_id": "bce3e9da-91a4-4604-91c2-e0cb0c3b79d7",
+    "mean_dps_per_target": 135717.47833159385,
+    "names": [
+      "columbina",
+      "illuga",
+      "zhongli",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "columbina",
+        0
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "zhongli",
+        0
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "zhongli",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "deathmatch",
+          "refine": 1
+        },
+        "sets": {
+          "scrolloftheheroofcindercity": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "kitaincrossspear",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*7 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*9 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\n//columbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\nzhongli char lvl=90/90 cons=0 talent=9,9,9;\r\nzhongli add weapon=\"deathmatch\" refine=1 lvl=90/90;\r\n#zhongli add weapon=\"lithicspear\" refine=5 lvl=90/90;\r\nzhongli add set=\"scroll\" count=4; \r\nzhongli add stats hp=4780 atk=311 atk%=0.466 geo%=0.466 cd=0.622;\r\n##zhongli add stats hp=4780 atk=311 def%=0.583 def%=0.583 cd=0.622;\r\n#zhongli add stats hp=4780 atk=311 hp%=0.466 hp%=0.466 cd=0.622;\r\nzhongli add stats def%=0.062*8 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*4 er=0.0551*2 em=19.82*2 cr=0.0331*12 cd=0.0662*10;\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n//illuga add set=\"gd\" count=2;\r\n//illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*3;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*8 er=0.0551*12 em=19.82*6 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive columbina;\r\nfor let i=0; i<6; i=i+1 {\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  \r\n  zhongli skill[hold=1];\r\n  \r\n  illuga skill, burst;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T20:32:13",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/bce3e9da-91a4-4604-91c2-e0cb0c3b79d7"
+  },
+  {
+    "_id": "e5599fa4-80b8-412d-b3a3-0a9fea48641a",
+    "mean_dps_per_target": 148834.52244133747,
+    "names": [
+      "columbina",
+      "gorou",
+      "illuga",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "columbina",
+        0
+      ],
+      [
+        "gorou",
+        6
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuscodex",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "gorou",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuswarbow",
+          "refine": 4
+        },
+        "sets": {
+          "instructor": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*7 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*9 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"favoniuscodex\" refine=5 lvl=90/90;\r\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\n//columbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\ngorou char lvl=90/90 cons=6 talent=9,9,9;\r\ngorou add weapon=\"favoniuswarbow\" refine=4 lvl=90/90;\r\ngorou add set=\"instructor\" count=4; \r\ngorou add stats hp=3571 atk=232 er=0.518 def%=0.435 cr=0.311*0.8; #mainstats\r\ngorou add stats def%=0.062*2*0.8 def=19.68*2*0.8 hp=253.94*2*0.8 def%=0.062*2*0.8 atk=16.54*2*0.8 atk%=0.0496*2*0.8 er=0.0551*6*0.8 em=19.82*2*0.8 cr=0.0331*8*0.8 cd=0.0662*4*0.8;\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"favlance\" refine=3 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n#illuga add set=\"gd\" count=2;\r\n#illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*2 cr=0.311;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*10 er=0.0551*6 em=19.82*8 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive columbina;\r\nfor let i=0; i<6; i=i+1 {\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  illuga skill, burst;\r\n  \r\n  gorou skill, burst;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T20:43:46",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/e5599fa4-80b8-412d-b3a3-0a9fea48641a"
+  },
+  {
+    "_id": "0d610cc0-02ed-4ebe-b172-5ab9fd9c74e1",
+    "mean_dps_per_target": 115152.51208262569,
+    "names": [
+      "aino",
+      "gorou",
+      "illuga",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "aino",
+        6
+      ],
+      [
+        "gorou",
+        6
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "aino",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniusgreatsword",
+          "refine": 3
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      },
+      {
+        "name": "gorou",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuswarbow",
+          "refine": 4
+        },
+        "sets": {
+          "instructor": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniuslance",
+          "refine": 3
+        },
+        "sets": {
+          "gildeddreams": 2,
+          "wandererstroupe": 2
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*6 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*9 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\naino char lvl=90/90 cons=6 talent=9,9,9;\r\naino add weapon=\"favoniusgreatsword\" refine=3 lvl=90/90;\r\naino add set=\"silkenmoonsserenade\" count=4;\r\naino add stats hp=4780 atk=311 em=187 em=187 cr=0.311;\r\naino add stats def%=0.124 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.0992 er=0.0551*4 em=79.28 cr=0.0331*10 cd=0.0662*10;\r\n\r\ngorou char lvl=90/90 cons=6 talent=9,9,9;\r\ngorou add weapon=\"favoniuswarbow\" refine=4 lvl=90/90;\r\ngorou add set=\"instructor\" count=4; \r\ngorou add stats hp=3571 atk=232 er=0.518 def%=0.435 cr=0.311*0.8; #mainstats\r\ngorou add stats def%=0.062*2*0.8 def=19.68*2*0.8 hp=253.94*2*0.8 def%=0.062*2*0.8 atk=16.54*2*0.8 atk%=0.0496*2*0.8 er=0.0551*6*0.8 em=19.82*2*0.8 cr=0.0331*8*0.8 cd=0.0662*4*0.8;\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"favlance\" refine=3 lvl=90/90;\r\n#illuga add set=\"silkenmoonsserenade\" count=4;\r\nilluga add set=\"gd\" count=2;\r\nilluga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*2 cr=0.311;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*10 er=0.0551*6 em=19.82*8 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive illuga;\r\nfor let i=0; i<6; i=i+1 {\r\n  illuga skill, burst;\r\n  \r\n  aino skill, attack, burst;\r\n  \r\n  gorou skill, burst;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;  \r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T20:45:42",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/0d610cc0-02ed-4ebe-b172-5ab9fd9c74e1"
+  },
+  {
+    "_id": "c86700af-d13e-4883-b4fc-38cf64d6f226",
+    "mean_dps_per_target": 140135.47750677317,
+    "names": [
+      "chiori",
+      "columbina",
+      "illuga",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "chiori",
+        0
+      ],
+      [
+        "columbina",
+        0
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "chiori",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "goldentroupe": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "kitaincrossspear",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*7 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*9 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\n//columbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\nchiori char lvl=90/90 cons=0 talent=9,9,9;\r\nchiori add weapon=\"harbingerofdawn\" refine=5 lvl=90/90;\r\nchiori add set=\"goldentroupe\" count=4;\r\nchiori add stats hp=4780 atk=311 def%=0.583 geo%=0.466 cd=0.622; #main\r\nchiori add stats hp=507.88 hp%=0.0991 atk=33.07 atk%=0.0991 def=39.35 def%=0.2478 em=39.63 er=0.1101 cr=0.3966 cd=0.6605;\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n#illuga add set=\"gd\" count=2;\r\n#illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*3;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*2 cr=0.0331*12 er=0.0551*6 em=19.82*6 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive columbina;\r\nfor let i=0; i<6; i=i+1 {\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  chiori skill:2;\r\n  \r\n  illuga burst, skill;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T21:02:22",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/c86700af-d13e-4883-b4fc-38cf64d6f226"
+  },
+  {
+    "_id": "0a349ce6-f39e-4078-acaa-5a97466f2735",
+    "mean_dps_per_target": 152862.27588338254,
+    "names": [
+      "columbina",
+      "illuga",
+      "zhongli",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "columbina",
+        0
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "zhongli",
+        0
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "zhongli",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "deathmatch",
+          "refine": 1
+        },
+        "sets": {
+          "scrolloftheheroofcindercity": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "kitaincrossspear",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*7 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*9 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\n//columbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\nzhongli char lvl=90/90 cons=0 talent=9,9,9;\r\nzhongli add weapon=\"deathmatch\" refine=1 lvl=90/90;\r\n#zhongli add weapon=\"lithicspear\" refine=5 lvl=90/90;\r\nzhongli add set=\"scroll\" count=4; \r\nzhongli add stats hp=4780 atk=311 atk%=0.466 geo%=0.466 cd=0.622;\r\n##zhongli add stats hp=4780 atk=311 def%=0.583 def%=0.583 cd=0.622;\r\n#zhongli add stats hp=4780 atk=311 hp%=0.466 hp%=0.466 cd=0.622;\r\nzhongli add stats def%=0.062*8 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*4 er=0.0551*2 em=19.82*2 cr=0.0331*12 cd=0.0662*10;\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n#illuga add set=\"gd\" count=2;\r\n#illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*3;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*2 cr=0.0331*12 er=0.0551*6 em=19.82*6 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive columbina;\r\nfor let i=0; i<6; i=i+1 {\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  \r\n  zhongli skill[hold=1];\r\n  \r\n  illuga burst, skill;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n#illuga add set=\"gd\" count=2;\r\n#illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*3;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*2 cr=0.0331*12 er=0.0551*6 em=19.82*6 def=19.68*2;",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T21:04:43",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/0a349ce6-f39e-4078-acaa-5a97466f2735"
+  },
+  {
+    "_id": "e473fd1e-f3db-49f1-b3e8-c33f042a532a",
+    "mean_dps_per_target": 146482.56905730817,
+    "names": [
+      "albedo",
+      "columbina",
+      "illuga",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "albedo",
+        0
+      ],
+      [
+        "columbina",
+        0
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "albedo",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "cinnabarspindle",
+          "refine": 5
+        },
+        "sets": {
+          "goldentroupe": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "kitaincrossspear",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*7 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*9 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\n//columbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\nalbedo char lvl=90/90 cons=0 talent=9,9,9; \r\nalbedo add weapon=\"cinnabarspindle\" refine=5 lvl=90/90;\r\nalbedo add set=\"gt\" count=4;\r\nalbedo add stats hp=4780 atk=311 def%=0.583 geo%=0.466 cr=0.311; #main\r\nalbedo add stats def%=0.248 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.0992 er=0.1102 em=39.64 cr=0.331 cd=0.7944;\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n#illuga add set=\"gd\" count=2;\r\n#illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*3;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*2 cr=0.0331*12 er=0.0551*6 em=19.82*6 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive columbina;\r\nfor let i=0; i<6; i=i+1 {\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  \r\n  albedo attack, skill, dash;\r\n  \r\n  illuga burst, skill;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n#illuga add set=\"gd\" count=2;\r\n#illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*3;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*2 cr=0.0331*12 er=0.0551*6 em=19.82*6 def=19.68*2;",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T21:12:18",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/e473fd1e-f3db-49f1-b3e8-c33f042a532a"
+  },
+  {
+    "_id": "8ce16059-462b-4264-8f29-f111909751eb",
+    "mean_dps_per_target": 149327.35377434365,
+    "names": [
+      "albedo",
+      "columbina",
+      "illuga",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "albedo",
+        1
+      ],
+      [
+        "columbina",
+        0
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "albedo",
+        "cons": 1,
+        "level": 90,
+        "weapon": {
+          "name": "cinnabarspindle",
+          "refine": 5
+        },
+        "sets": {
+          "goldentroupe": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "kitaincrossspear",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*7 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*9 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\n//columbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\nalbedo char lvl=90/90 cons=1 talent=9,9,9; \r\nalbedo add weapon=\"cinnabarspindle\" refine=5 lvl=90/90;\r\nalbedo add set=\"gt\" count=4;\r\nalbedo add stats hp=4780 atk=311 def%=0.583 geo%=0.466 cr=0.311; #main\r\nalbedo add stats def%=0.248 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.0992 er=0.1102 em=39.64 cr=0.331 cd=0.7944;\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n#illuga add set=\"gd\" count=2;\r\n#illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*3;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*2 cr=0.0331*12 er=0.0551*6 em=19.82*6 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive columbina;\r\nfor let i=0; i<6; i=i+1 {\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  \r\n  albedo attack, skill, dash;\r\n  \r\n  illuga burst, skill;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n#illuga add set=\"gd\" count=2;\r\n#illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*3;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*2 hp%=0.0496*2 cr=0.0331*12 er=0.0551*6 em=19.82*6 def=19.68*2;",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T21:13:45",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/8ce16059-462b-4264-8f29-f111909751eb"
+  },
+  {
+    "_id": "2c17e096-efae-4285-81a0-a72b85149d42",
+    "mean_dps_per_target": 173392.79177282986,
+    "names": [
+      "columbina",
+      "illuga",
+      "linnea",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "columbina",
+        0
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "linnea",
+        0
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "linnea",
+        "cons": 0,
+        "level": 80,
+        "weapon": {
+          "name": "slingshot",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 80,
+        "weapon": {
+          "name": "kitaincrossspear",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*7 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*9 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\nlinnea char lvl=80/90 cons=0 talent=9,9,9;\r\nlinnea add set=\"aubadeofmorningstarandmoon\" count=4;\r\nlinnea add weapon=\"slingshot\" refine=5 lvl=90/90;\r\n//linnea add stats def=1542 hp=4780 atk=346 er=0.408 em=147 cr=0.494 cd=0.428;\r\nlinnea add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nlinnea add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\n//columbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\n\r\nilluga char lvl=80/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\r\nilluga add set=\"silkenmoonsserenade\" count=4;\r\n//illuga add set=\"gd\" count=2;\r\n//illuga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*3;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*7 er=0.0551*9 em=19.82*6 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive linnea;\r\nfor let i=0; i<6; i=i+1 {\r\n  linnea skill, attack:2;\r\n  \r\n  columbina skill;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  illuga burst, skill;\r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;  \r\n  \r\n}\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T21:17:09",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/2c17e096-efae-4285-81a0-a72b85149d42"
+  },
+  {
+    "_id": "af32b5ae-b692-480d-b206-b207935d7940",
+    "mean_dps_per_target": 142788.5373320899,
+    "names": [
+      "aino",
+      "illuga",
+      "linnea",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "aino",
+        6
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "linnea",
+        0
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "aino",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "favoniusgreatsword",
+          "refine": 3
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      },
+      {
+        "name": "linnea",
+        "cons": 0,
+        "level": 80,
+        "weapon": {
+          "name": "slingshot",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 90,
+        "weapon": {
+          "name": "kitaincrossspear",
+          "refine": 5
+        },
+        "sets": {
+          "gildeddreams": 2,
+          "wandererstroupe": 2
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*6 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*9 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\naino char lvl=90/90 cons=6 talent=9,9,9;\r\naino add weapon=\"favoniusgreatsword\" refine=3 lvl=90/90;\r\naino add set=\"silkenmoonsserenade\" count=4;\r\naino add stats hp=4780 atk=311 em=187 em=187 cr=0.311;\r\naino add stats def%=0.124 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.0992 er=0.0551*4 em=79.28 cr=0.0331*10 cd=0.0662*10;\r\n\r\nlinnea char lvl=80/90 cons=0 talent=9,9,9;\r\nlinnea add set=\"aubadeofmorningstarandmoon\" count=4;\r\nlinnea add weapon=\"slingshot\" refine=5 lvl=90/90;\r\n//linnea add stats def=1542 hp=4780 atk=346 er=0.408 em=147 cr=0.494 cd=0.428;\r\nlinnea add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nlinnea add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\n\r\nilluga char lvl=90/90 cons=6 talent=9,9,9;\r\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\r\n#illuga add set=\"silkenmoonsserenade\" count=4;\r\nilluga add set=\"gd\" count=2;\r\nilluga add set=\"wt\" count=2;\r\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\r\nilluga add stats hp=4780 atk=311 em=187*2 cr=0.311;\r\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*10 er=0.0551*6 em=19.82*8 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive illuga;\r\nfor let i=0; i<6; i=i+1 {\r\n  linnea skill, attack:2;\r\n  \r\n  illuga burst, skill;\r\n  \r\n  aino skill, attack, burst;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;  \r\n}\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T21:20:45",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/af32b5ae-b692-480d-b206-b207935d7940"
+  },
+  {
+    "_id": "4047d860-11f3-4b40-a99a-04535ce8f098",
+    "mean_dps_per_target": 132124.72858267196,
+    "names": [
+      "chiori",
+      "columbina",
+      "linnea",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "chiori",
+        0
+      ],
+      [
+        "columbina",
+        0
+      ],
+      [
+        "linnea",
+        0
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "chiori",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "goldentroupe": 4
+        }
+      },
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "linnea",
+        "cons": 0,
+        "level": 80,
+        "weapon": {
+          "name": "slingshot",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\nchiori char lvl=90/90 cons=0 talent=9,9,9;\r\nchiori add weapon=\"harbingerofdawn\" refine=5 lvl=90/90;\r\nchiori add set=\"goldentroupe\" count=4;\r\nchiori add stats hp=4780 atk=311 def%=0.583 geo%=0.466 cd=0.622; #main\r\nchiori add stats hp=507.88 hp%=0.0991 atk=33.07 atk%=0.0991 def=39.35 def%=0.2478 em=39.63 er=0.1101 cr=0.3966 cd=0.6605;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\n//columbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\n\r\nlinnea char lvl=80/90 cons=0 talent=9,9,9;\r\nlinnea add set=\"aubadeofmorningstarandmoon\" count=4;\r\nlinnea add weapon=\"slingshot\" refine=5 lvl=90/90;\r\n//linnea add stats def=1542 hp=4780 atk=346 er=0.408 em=147 cr=0.494 cd=0.428;\r\nlinnea add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nlinnea add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive linnea;\r\nfor let i=0; i<6; i=i+1 {\r\n  linnea skill, attack:2;\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  chiori skill:2;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T21:25:01",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/4047d860-11f3-4b40-a99a-04535ce8f098"
+  },
+  {
+    "_id": "bed28cfa-5e68-4adc-bf8f-58383a3b60d2",
+    "mean_dps_per_target": 147090.8580647241,
+    "names": [
+      "chiori",
+      "columbina",
+      "linnea",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "chiori",
+        0
+      ],
+      [
+        "columbina",
+        0
+      ],
+      [
+        "linnea",
+        0
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "chiori",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "goldentroupe": 4
+        }
+      },
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      },
+      {
+        "name": "linnea",
+        "cons": 0,
+        "level": 80,
+        "weapon": {
+          "name": "slingshot",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\nchiori char lvl=90/90 cons=0 talent=9,9,9;\r\nchiori add weapon=\"harbingerofdawn\" refine=5 lvl=90/90;\r\nchiori add set=\"goldentroupe\" count=4;\r\nchiori add stats hp=4780 atk=311 def%=0.583 geo%=0.466 cd=0.622; #main\r\nchiori add stats hp=507.88 hp%=0.0991 atk=33.07 atk%=0.0991 def=39.35 def%=0.2478 em=39.63 er=0.1101 cr=0.3966 cd=0.6605;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\n//columbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\ncolumbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\n\r\nlinnea char lvl=80/90 cons=0 talent=9,9,9;\r\nlinnea add set=\"aubadeofmorningstarandmoon\" count=4;\r\nlinnea add weapon=\"slingshot\" refine=5 lvl=90/90;\r\n//linnea add stats def=1542 hp=4780 atk=346 er=0.408 em=147 cr=0.494 cd=0.428;\r\nlinnea add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nlinnea add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive linnea;\r\nfor let i=0; i<6; i=i+1 {\r\n  linnea skill, attack:2;\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  chiori skill:2;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T21:26:21",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/bed28cfa-5e68-4adc-bf8f-58383a3b60d2"
+  },
+  {
+    "_id": "cb733865-1e22-47eb-ac55-dd4cdc3c8b9c",
+    "mean_dps_per_target": 142181.42024007975,
+    "names": [
+      "columbina",
+      "linnea",
+      "zhongli",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "columbina",
+        0
+      ],
+      [
+        "linnea",
+        0
+      ],
+      [
+        "zhongli",
+        0
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      },
+      {
+        "name": "zhongli",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "deathmatch",
+          "refine": 1
+        },
+        "sets": {
+          "scrolloftheheroofcindercity": 4
+        }
+      },
+      {
+        "name": "linnea",
+        "cons": 0,
+        "level": 80,
+        "weapon": {
+          "name": "slingshot",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\n//columbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\ncolumbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\nzhongli char lvl=90/90 cons=0 talent=9,9,9;\r\nzhongli add weapon=\"deathmatch\" refine=1 lvl=90/90;\r\n#zhongli add weapon=\"lithicspear\" refine=5 lvl=90/90;\r\nzhongli add set=\"scroll\" count=4; \r\nzhongli add stats hp=4780 atk=311 atk%=0.466 geo%=0.466 cd=0.622;\r\n##zhongli add stats hp=4780 atk=311 def%=0.583 def%=0.583 cd=0.622;\r\n#zhongli add stats hp=4780 atk=311 hp%=0.466 hp%=0.466 cd=0.622;\r\nzhongli add stats def%=0.062*8 def=19.68*2 hp=253.94*2 hp%=0.0496*2 atk=16.54*2 atk%=0.0496*4 er=0.0551*2 em=19.82*2 cr=0.0331*12 cd=0.0662*10;\r\n\r\n\r\nlinnea char lvl=80/90 cons=0 talent=9,9,9;\r\nlinnea add set=\"aubadeofmorningstarandmoon\" count=4;\r\nlinnea add weapon=\"slingshot\" refine=5 lvl=90/90;\r\n//linnea add stats def=1542 hp=4780 atk=346 er=0.408 em=147 cr=0.494 cd=0.428;\r\nlinnea add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nlinnea add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive linnea;\r\nfor let i=0; i<6; i=i+1 {\r\n  linnea skill, attack:2;\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  \r\n  zhongli skill[hold=1];\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T21:29:02",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/cb733865-1e22-47eb-ac55-dd4cdc3c8b9c"
+  },
+  {
+    "_id": "dce1eab5-69f0-40fa-b149-32ff9fe55991",
+    "mean_dps_per_target": 139825.85469323737,
+    "names": [
+      "albedo",
+      "columbina",
+      "linnea",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "albedo",
+        0
+      ],
+      [
+        "columbina",
+        0
+      ],
+      [
+        "linnea",
+        0
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      },
+      {
+        "name": "albedo",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "cinnabarspindle",
+          "refine": 5
+        },
+        "sets": {
+          "goldentroupe": 4
+        }
+      },
+      {
+        "name": "linnea",
+        "cons": 0,
+        "level": 80,
+        "weapon": {
+          "name": "slingshot",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\n//columbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\ncolumbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\nalbedo char lvl=90/90 cons=0 talent=9,9,9; \r\nalbedo add weapon=\"cinnabarspindle\" refine=5 lvl=90/90;\r\nalbedo add set=\"gt\" count=4;\r\nalbedo add stats hp=4780 atk=311 def%=0.583 geo%=0.466 cr=0.311; #main\r\nalbedo add stats def%=0.248 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.0992 er=0.1102 em=39.64 cr=0.331 cd=0.7944;\r\n\r\n\r\nlinnea char lvl=80/90 cons=0 talent=9,9,9;\r\nlinnea add set=\"aubadeofmorningstarandmoon\" count=4;\r\nlinnea add weapon=\"slingshot\" refine=5 lvl=90/90;\r\n//linnea add stats def=1542 hp=4780 atk=346 er=0.408 em=147 cr=0.494 cd=0.428;\r\nlinnea add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nlinnea add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive linnea;\r\nfor let i=0; i<6; i=i+1 {\r\n  linnea skill, attack:2;\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  \r\n  albedo attack, skill, dash;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T21:30:41",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/dce1eab5-69f0-40fa-b149-32ff9fe55991"
+  },
+  {
+    "_id": "6a2480ac-1899-4b90-a9e0-e6976196f4a8",
+    "mean_dps_per_target": 143117.90154211072,
+    "names": [
+      "albedo",
+      "columbina",
+      "linnea",
+      "zibai"
+    ],
+    "composition": [
+      [
+        "albedo",
+        1
+      ],
+      [
+        "columbina",
+        0
+      ],
+      [
+        "linnea",
+        0
+      ],
+      [
+        "zibai",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "zibai",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "harbingerofdawn",
+          "refine": 5
+        },
+        "sets": {
+          "nightoftheskysunveiling": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      },
+      {
+        "name": "albedo",
+        "cons": 1,
+        "level": 90,
+        "weapon": {
+          "name": "cinnabarspindle",
+          "refine": 5
+        },
+        "sets": {
+          "goldentroupe": 4
+        }
+      },
+      {
+        "name": "linnea",
+        "cons": 0,
+        "level": 80,
+        "weapon": {
+          "name": "slingshot",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\r\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\r\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\r\n\r\nzibai char lvl=90/90 cons=0 talent=9,9,9;\r\nzibai add set=\"notsu\" count=4;\r\nzibai add weapon=\"harbinger\" refine=5 lvl=90/90;\r\nzibai add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nzibai add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\r\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\r\n//columbina add set=\"aubadeofmorningstarandmoon\" count=4;\r\ncolumbina add set=\"silkenmoonsserenade\" count=4;\r\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\r\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\r\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\r\n\r\nalbedo char lvl=90/90 cons=1 talent=9,9,9; \r\nalbedo add weapon=\"cinnabarspindle\" refine=5 lvl=90/90;\r\nalbedo add set=\"gt\" count=4;\r\nalbedo add stats hp=4780 atk=311 def%=0.583 geo%=0.466 cr=0.311; #main\r\nalbedo add stats def%=0.248 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.0992 er=0.1102 em=39.64 cr=0.331 cd=0.7944;\r\n\r\n\r\nlinnea char lvl=80/90 cons=0 talent=9,9,9;\r\nlinnea add set=\"aubadeofmorningstarandmoon\" count=4;\r\nlinnea add weapon=\"slingshot\" refine=5 lvl=90/90;\r\n//linnea add stats def=1542 hp=4780 atk=346 er=0.408 em=147 cr=0.494 cd=0.428;\r\nlinnea add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\r\nlinnea add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\r\n\r\n// Target and Energy assumptions\r\noptions swap_delay=12 iteration=1000;\r\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\r\nenergy every interval=480,720 amount=1; # standard Energy drops\r\n\r\n\r\nfn try_zibai_burst() {\r\n  if .zibai.burst.ready {\r\n    zibai attack, burst;\r\n  }\r\n}\r\nlet skill_time = -1000000;\r\n\r\n// Rotation assumptions\r\nactive linnea;\r\nfor let i=0; i<6; i=i+1 {\r\n  linnea skill, attack:2;\r\n  \r\n  columbina skill, attack;\r\n  if .columbina.burst.ready {\r\n    columbina burst;\r\n  } else {\r\n    columbina attack:2;\r\n  }\r\n  \r\n  albedo attack, skill, dash;\r\n  \r\n  zibai skill;\r\n  if .zibai.cons >= 1 {\r\n    zibai skill;\r\n  }\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4, skill;\r\n  try_zibai_burst();\r\n  zibai attack:4;\r\n  if i < 5 && !.columbina.burst.ready && .zibai.cons == 0 {\r\n    zibai attack:2;\r\n  }\r\n  if !i && .zibai.cons > 0 {\r\n    zibai attack;\r\n  }\r\n  zibai skill;   \r\n}\r\n\r\n\r\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-27T21:32:32",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/6a2480ac-1899-4b90-a9e0-e6976196f4a8"
+  },
+  {
+    "_id": "eb45bbd1-2f8f-4c51-8b61-d63facaf7db9",
+    "mean_dps_per_target": 109122.14828231074,
+    "names": [
+      "columbina",
+      "ineffa",
+      "linnea",
+      "navia"
+    ],
+    "composition": [
+      [
+        "columbina",
+        0
+      ],
+      [
+        "ineffa",
+        0
+      ],
+      [
+        "linnea",
+        0
+      ],
+      [
+        "navia",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "navia",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "serpentspine",
+          "refine": 1
+        },
+        "sets": {
+          "nightoftheskysunveiling": 5
+        }
+      },
+      {
+        "name": "linnea",
+        "cons": 0,
+        "level": 80,
+        "weapon": {
+          "name": "slingshot",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "ineffa",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "balladofthefjords",
+          "refine": 1
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "sacrificialjade",
+          "refine": 1
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      }
+    ],
+    "config": "// Build assumptions\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\n\nnavia char lvl=90/90 cons=0 talent=9,9,9; \nnavia add weapon=\"serpentspine\" refine=1 lvl=90/90 +params=[stacks=5];\nnavia add set=\"nightoftheskysunveiling\" count=5;\nnavia add stats hp=4780 atk=311 atk%=0.466 geo%=0.466 cd=0.622;\n//navia add stats def%=0.124 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.248 er=0.1102 em=39.64 cr=0.3641 cd=0.662;\nnavia add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*8 hp%=0.0496*2 cr=0.0331*10 er=0.0551*8 em=19.82*2 def=19.68*2;\n\nlinnea char lvl=80/90 cons=0 talent=9,9,9;\nlinnea add set=\"aubadeofmorningstarandmoon\" count=4;\nlinnea add weapon=\"slingshot\" refine=5 lvl=90/90;\n//linnea add stats def=1542 hp=4780 atk=346 er=0.408 em=147 cr=0.494 cd=0.428;\nlinnea add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\nlinnea add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\n\nineffa char lvl=90/90 cons=0 talent=9,9,9;\nineffa add weapon=\"fjords\" refine=1 lvl=90/90;\nineffa add set=\"sms\" count=4;\nineffa add stats hp=4780 atk=311 atk%=0.466 atk%=0.466 cd=0.622;\nineffa add stats def%=0.124 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.1984 er=0.1102 em=39.64 cr=0.3972 cd=0.662;\n\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\ncolumbina add weapon=\"sacjade\" refine=1 lvl=90/90;\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\ncolumbina add stats hp=4780 atk=311 hp%=0.466 hp%=0.466 cd=0.622;\ncolumbina add stats def%=0.124 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.0992 er=0.1102 em=178.38 cr=0.2317 cd=0.662;\n\n// Target and Energy assumptions\noptions swap_delay=12 iteration=1000;\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\nenergy every interval=480,720 amount=1; # standard Energy drops\n\n\nlet skill_time = -1000000;\n\n// Rotation assumptions\nactive columbina;\n\nfor let i=0; i<6; i=i+1 {\n  \n  columbina skill, attack;\n  if .columbina.burst.ready {\n    columbina burst;\n  } else {\n    columbina attack:2;\n  }\n  navia burst;\n  \n  ineffa skill, attack:2;\n  \n  linnea skill, attack:2;\n  \n  navia skill;\n  navia attack:3, dash, attack:4;\n  \n  navia skill;\n  navia attack:3, dash, attack:3;\n  \n}\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-28T10:59:20",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/eb45bbd1-2f8f-4c51-8b61-d63facaf7db9"
+  },
+  {
+    "_id": "71acf270-f98a-4dd1-b3b1-04c73035150e",
+    "mean_dps_per_target": 110029.51123391457,
+    "names": [
+      "columbina",
+      "illuga",
+      "linnea",
+      "navia"
+    ],
+    "composition": [
+      [
+        "columbina",
+        0
+      ],
+      [
+        "illuga",
+        6
+      ],
+      [
+        "linnea",
+        0
+      ],
+      [
+        "navia",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "navia",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "serpentspine",
+          "refine": 1
+        },
+        "sets": {
+          "nightoftheskysunveiling": 5
+        }
+      },
+      {
+        "name": "linnea",
+        "cons": 0,
+        "level": 80,
+        "weapon": {
+          "name": "slingshot",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      },
+      {
+        "name": "illuga",
+        "cons": 6,
+        "level": 80,
+        "weapon": {
+          "name": "kitaincrossspear",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      }
+    ],
+    "config": "\n// Build assumptions\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\n\n//navia char lvl=90/90 cons=0 talent=9,9,9; \n//navia add weapon=\"serpentspine\" refine=1 lvl=90/90 +params=[stacks=5];\n//navia add set=\"nightoftheskysunveiling\" count=5;\n//navia add stats hp=4780 atk=311 atk%=0.466 geo%=0.466 cd=0.622;\n//navia add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*8 hp%=0.0496*2 cr=0.0331*10 er=0.0551*8 em=19.82*2 def=19.68*2;\n\nnavia char lvl=90/90 cons=0 talent=9,9,9; \nnavia add weapon=\"serpentspine\" refine=1 lvl=90/90 +params=[stacks=5];\nnavia add set=\"nightoftheskysunveiling\" count=5;\nnavia add stats hp=4780 atk=311 atk%=0.466 geo%=0.466 cd=0.622;\nnavia add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*4 em=19.82*2 def=19.68*2;\n\nlinnea char lvl=80/90 cons=0 talent=9,9,9;\nlinnea add set=\"aubadeofmorningstarandmoon\" count=4;\nlinnea add weapon=\"slingshot\" refine=5 lvl=90/90;\n//linnea add stats def=1542 hp=4780 atk=346 er=0.408 em=147 cr=0.494 cd=0.428;\nlinnea add stats hp=4780 atk=311 def%=0.583*2 cd=0.622;\nlinnea add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*4 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*2 em=19.82*2 def=19.68*2;\n\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\ncolumbina add set=\"aubadeofmorningstarandmoon\" count=4;\n//columbina add set=\"silkenmoonsserenade\" count=4;\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\n\n\nilluga char lvl=80/90 cons=6 talent=9,9,9;\nilluga add weapon=\"kitain\" refine=5 lvl=90/90;\nilluga add set=\"silkenmoonsserenade\" count=4;\n//illuga add set=\"gd\" count=2;\n//illuga add set=\"wt\" count=2;\n//illuga add stats def=431 hp=5772 atk=497 er=0.473 em=634 cr=0.171 cd=0.264;\nilluga add stats hp=4780 atk=311 em=187*3;\nilluga add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*4 hp%=0.0496*2 cr=0.0331*7 er=0.0551*9 em=19.82*6 def=19.68*2;\n\n// Target and Energy assumptions\noptions swap_delay=12 iteration=1000;\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\nenergy every interval=480,720 amount=1; # standard Energy drops\n\n\nlet skill_time = -1000000;\n\n// Rotation assumptions\nactive navia;\nfor let i=0; i<6; i=i+1 {\n  navia burst;\n  \n  columbina skill, attack;\n  if .columbina.burst.ready {\n    columbina burst;\n  } else {\n    columbina attack:2;\n  }\n  \n  //if .linnea.skill.ready{\n  //  linnea burst, skill;\n  //}\n  //else{\n  //  linnea burst;\n  //}\n  linnea skill, attack:2;\n  \n  illuga burst, skill;\n  \n  navia skill;\n  navia attack:3, dash, attack:4;\n  \n  navia skill;\n  navia attack:3, dash, attack:2;\n  \n}\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-28T11:02:51",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/71acf270-f98a-4dd1-b3b1-04c73035150e"
+  },
+  {
+    "_id": "fd667d5e-8d8a-47c3-bd02-6da064f1876b",
+    "mean_dps_per_target": 119217.29191517265,
+    "names": [
+      "columbina",
+      "furina",
+      "linnea",
+      "navia"
+    ],
+    "composition": [
+      [
+        "columbina",
+        0
+      ],
+      [
+        "furina",
+        0
+      ],
+      [
+        "linnea",
+        0
+      ],
+      [
+        "navia",
+        0
+      ]
+    ],
+    "team": [
+      {
+        "name": "navia",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "serpentspine",
+          "refine": 1
+        },
+        "sets": {
+          "nightoftheskysunveiling": 5
+        }
+      },
+      {
+        "name": "columbina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "prototypeamber",
+          "refine": 5
+        },
+        "sets": {
+          "silkenmoonsserenade": 4
+        }
+      },
+      {
+        "name": "furina",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "favoniussword",
+          "refine": 3
+        },
+        "sets": {
+          "tenacityofthemillelith": 4
+        }
+      },
+      {
+        "name": "linnea",
+        "cons": 0,
+        "level": 80,
+        "weapon": {
+          "name": "snarehook",
+          "refine": 5
+        },
+        "sets": {
+          "aubadeofmorningstarandmoon": 4
+        }
+      }
+    ],
+    "config": "\n// Build assumptions\n//hp=4780, atk=311, atk%=0.466, def%=0.583, cd=0.622, hp%=0.466, cr=0.311, er=0.518, em=187;\n//hp=253.94*2, atk=16.54*2, atk%=0.0496*2, def%=0.062*2, cd=0.0662*2, hp%=0.0496*2, cr=0.0331*2, er=0.0551*2, em=19.82*2, def=19.68*2;\n\nnavia char lvl=90/90 cons=0 talent=9,9,9; \nnavia add weapon=\"serpentspine\" refine=1 lvl=90/90 +params=[stacks=5];\nnavia add set=\"nightoftheskysunveiling\" count=5;\nnavia add stats hp=4780 atk=311 atk%=0.466 geo%=0.466 cd=0.622;\nnavia add stats def%=0.124 def=39.36 hp=507.88 hp%=0.0992 atk=33.08 atk%=0.248 er=0.1102 em=39.64 cr=0.3641 cd=0.662;\nnavia add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*3 def%=0.062*2 cd=0.0662*10 hp%=0.0496*2 cr=0.0331*12 er=0.0551*4 em=19.82*2 def=19.68*2;\n\ncolumbina char lvl=90/90 cons=0 talent=9,9,9;\ncolumbina add weapon=\"prototypeamber\" refine=5 lvl=90/90;\n//columbina add set=\"aubadeofmorningstarandmoon\" count=4;\ncolumbina add set=\"silkenmoonsserenade\" count=4;\n//columbina add stats def=0 hp=18476 atk=466 er=0.473 em=112 cr=0.393 cd=0.1018;\ncolumbina add stats hp=4780 atk=311 hp%=0.466*2 cr=0.311;\ncolumbina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*5 er=0.0551*9 em=19.82*2 def=19.68*2;\n\nfurina char lvl=90/90 cons=0 talent=9,9,9 ; \nfurina add weapon=\"favsword\" refine=3 lvl=90/90;\nfurina add set=\"totm\" count=4;\nfurina add stats hp=4780 atk=311 hp%=0.466 hydro%=0.466 cr=0.311;\nfurina add stats def%=0.124 def=39.36 hp=507.88 hp%=0.1984 atk=33.08 atk%=0.0992 er=0.1102 em=39.64 cr=0.331 cd=0.7944;\nfurina add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*10 er=0.0551*4 em=19.82*2 def=19.68*2;\n\n\nlinnea char lvl=80/90 cons=0 talent=9,9,9;\nlinnea add set=\"aubadeofmorningstarandmoon\" count=4;\nlinnea add weapon=\"snarehook\" refine=5 lvl=90/90;\n//linnea add stats def=1542 hp=4780 atk=346 er=0.408 em=147 cr=0.494 cd=0.428;\nlinnea add stats hp=4780 atk=311 def%=0.583*2 cr=0.311;\nlinnea add stats hp=253.94*2 atk=16.54*2 atk%=0.0496*2 def%=0.062*2 cd=0.0662*12 hp%=0.0496*2 cr=0.0331*6 er=0.0551*8 em=19.82*2 def=19.68*2;\n\n// Target and Energy assumptions\noptions swap_delay=12 iteration=1000;\ntarget lvl=100 resist=0.1 radius=2 pos=0,2.4 hp=999999999; # standard ST target\nenergy every interval=480,720 amount=1; # standard Energy drops\n\n\nlet skill_time = -1000000;\n\n// Rotation assumptions\nactive navia;\n\nfor let i=0; i<6; i=i+1 {\n  navia burst;\n  \n  columbina skill, attack;\n  if .columbina.burst.ready {\n    columbina burst;\n  } else {\n    columbina attack:2;\n  }\n  \n  if .furina.skill.ready{\n    furina skill, dash, burst;\n  }\n  else{\n    furina burst, attack;\n  }\n  \n  if .linnea.skill.ready{\n    linnea burst, skill;\n  }\n  else{\n    linnea burst;\n  }\n  \n  \n  navia skill;\n  navia attack:3, dash, attack:4;\n  \n  navia skill;\n  navia attack:3, dash, attack:2;\n  \n}\n\n\n",
+    "description": "",
+    "not_valid": false,
+    "created_at": "2026-08-28T11:05:43",
+    "sim_version": "14abc34468b938af8f37418b6caa721360c32bbd",
+    "wfpsim_url": "https://wfpsim.com/sh/fd667d5e-8d8a-47c3-bd02-6da064f1876b"
   }
 ]
