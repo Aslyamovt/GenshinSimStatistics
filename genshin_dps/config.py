@@ -21,7 +21,7 @@ BASE_DIR = _base_dir()
 
 # --- Имя и версия сервиса ---
 APP_NAME = "Genshin Sim Statistics"
-APP_VERSION = "2.0.1"
+APP_VERSION = "2.0.3"
 
 # --- Пути к кэшу и файлам ---
 CACHE_DIR = BASE_DIR / "cache"
@@ -60,9 +60,6 @@ GCSIM_DB_URL = "https://gcsim.app/db/{record_id}"
 WFPSIM_SHARE_URL = "https://wfpsim.com/sh/{record_id}"
 # API-ссылка, по которой запрашивается JSON замера.
 WFPSIM_API_SHARE_URL = "https://wfpsim.com/api/share/{record_id}"
-
-# --- Интерфейс вкладки Wfpsim database ---
-WFPSIM_CARDS_PER_PAGE = 5  # количество карточек замеров на одной странице
 
 # --- Параметры выгрузки ---
 PAGE_SIZE = 100  # размер страницы при выгрузке из Simpact

@@ -59,10 +59,11 @@ class WfpsimDB:
             self.save()
         return changed
 
-    def mark_not_valid(self, record_id: str) -> bool:
+    def toggle_not_valid(self, record_id: str) -> bool:
+        """Переключает флаг ``not_valid`` записи (True<->False)."""
         for rec in self.records:
             if rec.get("_id") == record_id:
-                rec["not_valid"] = True
+                rec["not_valid"] = not rec.get("not_valid", False)
                 self.save()
                 return True
         return False
