@@ -25,6 +25,7 @@ from ..classifier_ui import (
 )
 from ..objects_manager import ObjectsManager, UnionObjectsManager
 from .db import WfpsimDB
+from .records import WfpsimRecords
 from .service import NoResultsError, WfpsimService
 
 # Копирование конфига в буфер обмена на клиентской стороне.
@@ -344,7 +345,16 @@ def build_wfpsim_tab(om):
 
     # --- Внутренние вспомогательные функции ---
 
+    def _rebuild_wf_records():
+        """Пересобирает трансформированные записи для вкладки Genshin DPS Leaders."""
+        WfpsimRecords().rebuild(wom)
+
     def _build_current(sort_key, required, excluded, show_invalid, page_size, page):
+        # Перечитываем базу с диска: изменения, внесённые в других вкладках
+        # (например, кнопка «Сделать невалидной» во вкладке Genshin DPS Leaders),
+        # сохраняются в cache/wfpsim_db.json отдельной вкладкой, поэтому здесь
+        # всегда нужна актуальная копия, а не кэш, загруженный при построении UI.
+        wdb.load()
         records = _apply_filters(
             wdb.records, sort_key, required, excluded, show_invalid
         )
@@ -443,12 +453,15 @@ def build_wfpsim_tab(om):
     def make_action(slot_idx, kind):
         def inner(sort_key, required, excluded, show_invalid, page_size, page, records):
             rec = _slot_record(records, page, page_size, slot_idx)
+            changed = False
             if rec is not None:
                 rid = rec.get("_id")
                 if kind == "delete":
-                    wdb.delete(rid)
+                    changed = wdb.delete(rid)
                 elif kind == "invalid":
-                    wdb.toggle_not_valid(rid)
+                    changed = wdb.toggle_not_valid(rid)
+            if changed:
+                _rebuild_wf_records()
             return _refresh_tail(
                 sort_key, required, excluded, show_invalid, page_size, page
             )
@@ -544,6 +557,7 @@ def build_wfpsim_tab(om):
         else:
             wdb.add_or_update(record)
             msg = i18n.t("wf_added")
+        _rebuild_wf_records()
         return (
             [gr.update(value=msg), gr.update(visible=False),
              None, None, None]
@@ -624,6 +638,7 @@ def build_wfpsim_tab(om):
         else:
             msg = i18n.t("wf_added")
         wdb.add_or_update(record)
+        _rebuild_wf_records()
 
         return (
             [gr.update(value=msg), gr.update(),

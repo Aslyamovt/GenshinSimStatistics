@@ -35,7 +35,17 @@ both tabs.
 - Downloading of avatar, weapon, and artifact set images into a local cache.
 - Filter sets: **All teams**, **KQMS**, **KQMS with selector**, **FTP**.
 - Character filters: required and excluded.
-- Team cards with DPS, images, and a link to details on gcsim.
+- Source filter — which records to display in the leaderboard:
+  - **Only gcsim** — only Simpact records;
+  - **Wfpsim for unique** — Simpact records plus Wfpsim records that have no match
+    (same characters and `cons`) in the local Simpact database;
+  - **Wfpsim for all** — Simpact records, unique Wfpsim records, and for compositions
+    present in both sources the record with the higher DPS is shown.
+- Team cards with DPS, images, and a link to details on gcsim/wfpsim.
+- Records from the Wfpsim database are marked with a red **wfpsim** label and have a
+  **Mark as invalid** button below the card. Pressing it sets `not_valid = True` for the
+  record, so it immediately disappears from the leaderboard (and, if "Wfpsim for all" is
+  active and there was a lower-damage gcsim analog, that analog is shown instead).
 - Pagination of the list (10/20/50 teams per page).
 
 ### Wfpsim database
@@ -57,12 +67,18 @@ both tabs.
   - **Replace wfpsim link** — opens a dialog to enter a new link and replaces the
     record's ID and link (no new record is created);
   - **Delete measurement** — removes the record from the local database;
-  - **Mark as invalid** — sets the `not_valid = True` flag on the record (currently
-    unused, reserved for future functionality);
+  - **Toggle validity status** — switches the `not_valid` flag on the record
+    (`True` ↔ `False`); invalid records are hidden from the list unless the
+    **Show invalid** checkbox is enabled;
   - **Copy config** — copies the record's `config` field to the clipboard.
 - The list of cards can be sorted by **date added** or **DPS**, and filtered by a set
   of required characters and a set of excluded characters. Filtering uses the combined
   character lists of `cache/objects.json` and `cache/wfpsim_objects.json`.
+- The **Show invalid** checkbox toggles whether records with `not_valid = True` are shown.
+- Valid Wfpsim records are automatically transformed to the Simpact record format and
+  stored in a separate file `cache/wfpsim_records.json` (distinct from both
+  `cache/local_db.json` and `cache/wfpsim_db.json`). Adding/replacing/deleting or
+  toggling validity of a Wfpsim record immediately updates the Genshin DPS Leaders tab.
 - When adding/replacing a record, if it contains characters or weapons that are missing
   from the combined classification lists, a classification panel opens (analogous to the
   one in Genshin DPS Leaders). The results are written to a separate file
@@ -159,10 +175,12 @@ genshin_dps/
     models.py                 # Wfpsim JSON -> local record conversion
     db.py                     # Wfpsim local database (separate file)
     service.py                # Wfpsim API requests + asset fallback to Simpact
+    records.py                # Wfpsim -> Simpact record transform + merge for DPS tab
     ui.py                     # Wfpsim tab interface
 cache/                        # local databases, images and objects
   local_db.json               # Simpact database
   wfpsim_db.json              # Wfpsim database
+  wfpsim_records.json         # transformed Wfpsim records for Genshin DPS Leaders
   objects.json                # base classification lists
   wfpsim_objects.json         # Wfpsim classifications (same structure as objects.json)
   avatars/  weapons/  artifacts/
