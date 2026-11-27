@@ -83,8 +83,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/b35fc838-06be-45a3-949a-a46901702914",
-    "created_at": "2026-08-26T23:37:55"
+    "created_at": "2026-08-26T23:37:55",
+    "wfpsim_url": "https://wfpsim.com/sh/b35fc838-06be-45a3-949a-a46901702914"
   },
   {
     "_id": "f8842196-c0cf-4df1-8bbd-077047d01fbc",
@@ -170,8 +170,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/f8842196-c0cf-4df1-8bbd-077047d01fbc",
-    "created_at": "2026-08-26T23:39:13"
+    "created_at": "2026-08-26T23:39:13",
+    "wfpsim_url": "https://wfpsim.com/sh/f8842196-c0cf-4df1-8bbd-077047d01fbc"
   },
   {
     "_id": "8db462cd-df6c-4e60-a117-9ea1f0dcd84e",
@@ -257,8 +257,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/8db462cd-df6c-4e60-a117-9ea1f0dcd84e",
-    "created_at": "2026-08-26T23:49:54"
+    "created_at": "2026-08-26T23:49:54",
+    "wfpsim_url": "https://wfpsim.com/sh/8db462cd-df6c-4e60-a117-9ea1f0dcd84e"
   },
   {
     "_id": "e91e8b07-8632-461e-9c84-8e99f8bf1042",
@@ -344,8 +344,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/e91e8b07-8632-461e-9c84-8e99f8bf1042",
-    "created_at": "2026-08-26T23:50:38"
+    "created_at": "2026-08-26T23:50:38",
+    "wfpsim_url": "https://wfpsim.com/sh/e91e8b07-8632-461e-9c84-8e99f8bf1042"
   },
   {
     "_id": "e68bdbe3-3bf8-407f-a509-94e463c79cea",
@@ -431,8 +431,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/e68bdbe3-3bf8-407f-a509-94e463c79cea",
-    "created_at": "2026-08-26T23:51:49"
+    "created_at": "2026-08-26T23:51:49",
+    "wfpsim_url": "https://wfpsim.com/sh/e68bdbe3-3bf8-407f-a509-94e463c79cea"
   },
   {
     "_id": "7de43652-7a80-4445-95a5-8405e52ad5bd",
@@ -518,8 +518,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/7de43652-7a80-4445-95a5-8405e52ad5bd",
-    "created_at": "2026-08-26T23:53:03"
+    "created_at": "2026-08-26T23:53:03",
+    "wfpsim_url": "https://wfpsim.com/sh/7de43652-7a80-4445-95a5-8405e52ad5bd"
   },
   {
     "_id": "dd9f54bd-20f4-4e70-bf2f-3d110a010770",
@@ -605,8 +605,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/dd9f54bd-20f4-4e70-bf2f-3d110a010770",
-    "created_at": "2026-08-26T23:58:25"
+    "created_at": "2026-08-26T23:58:25",
+    "wfpsim_url": "https://wfpsim.com/sh/dd9f54bd-20f4-4e70-bf2f-3d110a010770"
   },
   {
     "_id": "7a881d30-cc2d-40b2-9a10-47f689784dc8",
@@ -693,8 +693,8 @@
       "ftp": true
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/7a881d30-cc2d-40b2-9a10-47f689784dc8",
-    "created_at": "2026-08-27T20:06:33"
+    "created_at": "2026-08-27T20:06:33",
+    "wfpsim_url": "https://wfpsim.com/sh/7a881d30-cc2d-40b2-9a10-47f689784dc8"
   },
   {
     "_id": "cabb4c09-d368-4511-bcc1-e20be88ba778",
@@ -781,8 +781,8 @@
       "ftp": true
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/cabb4c09-d368-4511-bcc1-e20be88ba778",
-    "created_at": "2026-08-27T20:07:40"
+    "created_at": "2026-08-27T20:07:40",
+    "wfpsim_url": "https://wfpsim.com/sh/cabb4c09-d368-4511-bcc1-e20be88ba778"
   },
   {
     "_id": "8e3dc3ed-66e9-4e70-a9ca-564bc14400ff",
@@ -869,8 +869,8 @@
       "ftp": true
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/8e3dc3ed-66e9-4e70-a9ca-564bc14400ff",
-    "created_at": "2026-08-27T20:08:32"
+    "created_at": "2026-08-27T20:08:32",
+    "wfpsim_url": "https://wfpsim.com/sh/8e3dc3ed-66e9-4e70-a9ca-564bc14400ff"
   },
   {
     "_id": "27fc8240-797e-45c7-ba0a-30134592495b",
@@ -956,8 +956,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/27fc8240-797e-45c7-ba0a-30134592495b",
-    "created_at": "2026-08-27T20:15:03"
+    "created_at": "2026-08-27T20:15:03",
+    "wfpsim_url": "https://wfpsim.com/sh/27fc8240-797e-45c7-ba0a-30134592495b"
   },
   {
     "_id": "bce3e9da-91a4-4604-91c2-e0cb0c3b79d7",
@@ -1043,8 +1043,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/bce3e9da-91a4-4604-91c2-e0cb0c3b79d7",
-    "created_at": "2026-08-27T20:32:13"
+    "created_at": "2026-08-27T20:32:13",
+    "wfpsim_url": "https://wfpsim.com/sh/bce3e9da-91a4-4604-91c2-e0cb0c3b79d7"
   },
   {
     "_id": "e5599fa4-80b8-412d-b3a3-0a9fea48641a",
@@ -1130,8 +1130,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/e5599fa4-80b8-412d-b3a3-0a9fea48641a",
-    "created_at": "2026-08-27T20:43:46"
+    "created_at": "2026-08-27T20:43:46",
+    "wfpsim_url": "https://wfpsim.com/sh/e5599fa4-80b8-412d-b3a3-0a9fea48641a"
   },
   {
     "_id": "0d610cc0-02ed-4ebe-b172-5ab9fd9c74e1",
@@ -1218,8 +1218,8 @@
       "ftp": true
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/0d610cc0-02ed-4ebe-b172-5ab9fd9c74e1",
-    "created_at": "2026-08-27T20:45:42"
+    "created_at": "2026-08-27T20:45:42",
+    "wfpsim_url": "https://wfpsim.com/sh/0d610cc0-02ed-4ebe-b172-5ab9fd9c74e1"
   },
   {
     "_id": "c86700af-d13e-4883-b4fc-38cf64d6f226",
@@ -1305,8 +1305,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/c86700af-d13e-4883-b4fc-38cf64d6f226",
-    "created_at": "2026-08-27T21:02:22"
+    "created_at": "2026-08-27T21:02:22",
+    "wfpsim_url": "https://wfpsim.com/sh/c86700af-d13e-4883-b4fc-38cf64d6f226"
   },
   {
     "_id": "0a349ce6-f39e-4078-acaa-5a97466f2735",
@@ -1392,8 +1392,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/0a349ce6-f39e-4078-acaa-5a97466f2735",
-    "created_at": "2026-08-27T21:04:43"
+    "created_at": "2026-08-27T21:04:43",
+    "wfpsim_url": "https://wfpsim.com/sh/0a349ce6-f39e-4078-acaa-5a97466f2735"
   },
   {
     "_id": "e473fd1e-f3db-49f1-b3e8-c33f042a532a",
@@ -1479,8 +1479,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/e473fd1e-f3db-49f1-b3e8-c33f042a532a",
-    "created_at": "2026-08-27T21:12:18"
+    "created_at": "2026-08-27T21:12:18",
+    "wfpsim_url": "https://wfpsim.com/sh/e473fd1e-f3db-49f1-b3e8-c33f042a532a"
   },
   {
     "_id": "8ce16059-462b-4264-8f29-f111909751eb",
@@ -1566,8 +1566,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/8ce16059-462b-4264-8f29-f111909751eb",
-    "created_at": "2026-08-27T21:13:45"
+    "created_at": "2026-08-27T21:13:45",
+    "wfpsim_url": "https://wfpsim.com/sh/8ce16059-462b-4264-8f29-f111909751eb"
   },
   {
     "_id": "9ea0fa8b-d16a-485a-8f1b-949336522981",
@@ -1653,8 +1653,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/9ea0fa8b-d16a-485a-8f1b-949336522981",
-    "created_at": "2026-08-28T17:05:11"
+    "created_at": "2026-08-28T17:05:11",
+    "wfpsim_url": "https://wfpsim.com/sh/9ea0fa8b-d16a-485a-8f1b-949336522981"
   },
   {
     "_id": "8479677d-6e2b-4b77-9ef2-43c32acab07e",
@@ -1740,8 +1740,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/8479677d-6e2b-4b77-9ef2-43c32acab07e",
-    "created_at": "2026-08-28T17:12:32"
+    "created_at": "2026-08-28T17:12:32",
+    "wfpsim_url": "https://wfpsim.com/sh/8479677d-6e2b-4b77-9ef2-43c32acab07e"
   },
   {
     "_id": "90511f71-f231-4eeb-be76-1d490880b7b0",
@@ -1827,8 +1827,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/90511f71-f231-4eeb-be76-1d490880b7b0",
-    "created_at": "2026-08-28T17:14:46"
+    "created_at": "2026-08-28T17:14:46",
+    "wfpsim_url": "https://wfpsim.com/sh/90511f71-f231-4eeb-be76-1d490880b7b0"
   },
   {
     "_id": "612dcaf2-4823-40c8-90a8-88d2af384862",
@@ -1915,8 +1915,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/612dcaf2-4823-40c8-90a8-88d2af384862",
-    "created_at": "2026-08-28T17:16:44"
+    "created_at": "2026-08-28T17:16:44",
+    "wfpsim_url": "https://wfpsim.com/sh/612dcaf2-4823-40c8-90a8-88d2af384862"
   },
   {
     "_id": "b718e77e-1311-45ec-aa40-88d9311c0521",
@@ -2002,8 +2002,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/b718e77e-1311-45ec-aa40-88d9311c0521",
-    "created_at": "2026-08-28T17:18:24"
+    "created_at": "2026-08-28T17:18:24",
+    "wfpsim_url": "https://wfpsim.com/sh/b718e77e-1311-45ec-aa40-88d9311c0521"
   },
   {
     "_id": "5a331f8f-f9fd-4920-9108-5be2cde93fcb",
@@ -2089,8 +2089,8 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/5a331f8f-f9fd-4920-9108-5be2cde93fcb",
-    "created_at": "2026-08-28T17:20:25"
+    "created_at": "2026-08-28T17:20:25",
+    "wfpsim_url": "https://wfpsim.com/sh/5a331f8f-f9fd-4920-9108-5be2cde93fcb"
   },
   {
     "_id": "704b7be4-2648-4bde-b467-a8962cf76888",
@@ -2176,7 +2176,94 @@
       "ftp": false
     },
     "source": "wfpsim",
-    "wfpsim_url": "https://wfpsim.com/sh/704b7be4-2648-4bde-b467-a8962cf76888",
-    "created_at": "2026-08-28T17:21:35"
+    "created_at": "2026-08-28T17:21:35",
+    "wfpsim_url": "https://wfpsim.com/sh/704b7be4-2648-4bde-b467-a8962cf76888"
+  },
+  {
+    "_id": "anastasya-odette-xilonen-yaemiko-a35f5050-8556-4372-aea7-c5bc4e1a8d66",
+    "mean_dps_per_target": 214018.01314924876,
+    "names": [
+      "anastasya",
+      "odette",
+      "xilonen",
+      "yaemiko"
+    ],
+    "composition": [
+      [
+        "anastasya",
+        0
+      ],
+      [
+        "odette",
+        0
+      ],
+      [
+        "xilonen",
+        0
+      ],
+      [
+        "yaemiko",
+        1
+      ]
+    ],
+    "team": [
+      {
+        "name": "anastasya",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "jadevista",
+          "refine": 1
+        },
+        "sets": {
+          "disenchantmentindeepshadow": 4
+        }
+      },
+      {
+        "name": "yaemiko",
+        "cons": 1,
+        "level": 90,
+        "weapon": {
+          "name": "echoesoftheheart",
+          "refine": 5
+        },
+        "sets": {
+          "disenchantmentindeepshadow": 4
+        }
+      },
+      {
+        "name": "xilonen",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "favoniussword",
+          "refine": 3
+        },
+        "sets": {
+          "instructor": 4
+        }
+      },
+      {
+        "name": "odette",
+        "cons": 0,
+        "level": 90,
+        "weapon": {
+          "name": "exaiphanesblade",
+          "refine": 5
+        },
+        "sets": {
+          "heartofthefurnace": 4
+        }
+      }
+    ],
+    "description": "",
+    "flags": {
+      "kqms": false,
+      "kqms_selector": true,
+      "ftp": false
+    },
+    "source": "wfpsim",
+    "created_at": "2026-11-27T17:49:35",
+    "wfpsim_url": "https://sim.kqm.gg/sh/anastasya-odette-xilonen-yaemiko-a35f5050-8556-4372-aea7-c5bc4e1a8d66"
   }
 ]

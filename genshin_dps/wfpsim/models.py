@@ -9,8 +9,8 @@
 import datetime
 import re
 
-from .. import config
 from .. import models as sim_models
+from . import sources
 
 
 def _parse_cons_from_config(config_text: str, name: str) -> int:
@@ -66,16 +66,25 @@ def _team_from_details(character_details: list, config_text: str) -> list:
     return team
 
 
-def to_record(raw: dict, record_id: str, wfpsim_url: str = None) -> dict:
-    """Преобразует сырой JSON Wfpsim в запись локальной базы Wfpsim.
+def to_record(
+    raw: dict,
+    record_id: str,
+    wfpsim_url: str = None,
+    source: str = None,
+    url_field: str = "wfpsim_url",
+    default_url: str = None,
+) -> dict:
+    """Преобразует сырой JSON источника в запись локальной базы.
 
     Поля ``names``, ``composition`` и ``team`` совместимы с базой Simpact,
     поэтому карточки строятся теми же функциями. Поле ``config`` сохраняется
     отдельно и доступно для копирования.
 
     ``wfpsim_url`` — исходная ссылка, которую ввёл пользователь (например,
-    ``https://wfpsim.com/sh/{ID}``). Если не передана, используется стандартный
-    формат ``WFPSIM_SHARE_URL``.
+    ``https://wfpsim.com/sh/{ID}`` или ``https://sim.kqm.gg/sh/{ID}``).
+    Ссылка сохраняется в поле ``wfpsim_url`` для обратной совместимости с
+    существующими базами. Если ссылка не передана, используется стандартный
+    формат для указанного источника.
     """
     statistics = raw.get("statistics") or {}
     dps = (statistics.get("dps") or {}).get("mean", 0)
@@ -83,10 +92,11 @@ def to_record(raw: dict, record_id: str, wfpsim_url: str = None) -> dict:
     details = raw.get("character_details") or []
     team = _team_from_details(details, config_text)
 
+    source = source or sources.detect_source(wfpsim_url)
     if not wfpsim_url:
-        wfpsim_url = config.WFPSIM_SHARE_URL.format(record_id=record_id)
+        wfpsim_url = default_url or sources.share_url(source, record_id)
 
-    return {
+    record = {
         "_id": record_id,
         "mean_dps_per_target": dps,
         "names": sim_models.canonical_names(team),
@@ -97,6 +107,7 @@ def to_record(raw: dict, record_id: str, wfpsim_url: str = None) -> dict:
         "not_valid": False,
         "created_at": datetime.datetime.now().isoformat(timespec="seconds"),
         "sim_version": (raw.get("sim_version") or ""),
-        # Исходная пользовательская ссылка на запись Wfpsim
-        "wfpsim_url": wfpsim_url,
     }
+    # Исходная пользовательская ссылка на запись (поле зависит от источника).
+    record[url_field] = wfpsim_url
+    return record

@@ -12,7 +12,7 @@ import requests
 
 from .. import config
 from ..downloader import SimpactDownloader
-from . import models
+from . import models, sources
 
 
 class NoResultsError(Exception):
@@ -48,26 +48,32 @@ class WfpsimService:
 
     # --- Запрос записей ---
 
-    def fetch_share(self, record_id: str) -> dict:
-        """Возвращает сырой JSON записи по её ID из базы Wfpsim."""
-        url = config.WFPSIM_API_SHARE_URL.format(record_id=record_id)
+    def fetch_share(self, record_id: str, source: str = None) -> dict:
+        """Возвращает сырой JSON записи по её ID из указанного источника."""
+        source = source or sources.SOURCE_WFPSIM
+        url = sources.api_share_url(source, record_id)
         resp = self.session.get(url, timeout=config.REQUEST_TIMEOUT)
         resp.raise_for_status()
         return resp.json()
 
     def fetch_and_build(self, record_id: str, wfpsim_url: str = None) -> dict:
-        """Получает запись из Wfpsim и преобразует её в формат локальной базы.
+        """Получает запись из источника и преобразует её в формат локальной базы.
 
-        ``wfpsim_url`` — исходная ссылка, введённая пользователем; она сохраняется
-        в записи как есть (для «Подробнее на wfpsim» и замены ссылки).
+        Источник определяется по домену ``wfpsim_url`` (wfpsim.com или
+        sim.kqm.gg). ``wfpsim_url`` — исходная ссылка, введённая пользователем;
+        она сохраняется в записи как есть (для «Подробнее на sim» и замены
+        ссылки).
 
-        Если в базе Wfpsim для записи нет результатов замеров урона, бросается
+        Если в базе источника нет результатов замеров урона, бросается
         ``NoResultsError``.
         """
-        raw = self.fetch_share(record_id)
+        source = sources.detect_source(wfpsim_url)
+        raw = self.fetch_share(record_id, source)
         if not _has_results(raw):
             raise NoResultsError(record_id)
-        return models.to_record(raw, record_id, wfpsim_url=wfpsim_url)
+        return models.to_record(
+            raw, record_id, wfpsim_url=wfpsim_url, source=source
+        )
 
     # --- Загрузка ассетов (через базу Simpact с fallback на default.png) ---
 

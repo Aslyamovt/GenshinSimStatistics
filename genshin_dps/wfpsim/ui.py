@@ -24,6 +24,7 @@ from ..classifier_ui import (
     row_updates as _row_updates,
 )
 from ..objects_manager import ObjectsManager, UnionObjectsManager
+from . import sources
 from .db import WfpsimDB
 from .records import WfpsimRecords
 from .service import NoResultsError, WfpsimService
@@ -46,7 +47,11 @@ JS_COPY_CLIPBOARD = """
 
 # --- Построение HTML-карточки замера -------------------------------------
 
-def _record_card_html(record: dict, service: WfpsimService) -> str:
+def _record_card_html(
+    record: dict,
+    service: WfpsimService,
+    show_source: bool = True,
+) -> str:
     """Строит HTML-карточку замера (DPS, персонажи, аватары, оружие, артефакты)."""
     dps_str = html_utils.format_dps(record.get("mean_dps_per_target", 0))
     team_names = " · ".join(
@@ -60,9 +65,19 @@ def _record_card_html(record: dict, service: WfpsimService) -> str:
         '<div style="display:flex;justify-content:space-between;align-items:center;">',
         f'<div style="font-size:22px;font-weight:bold;color:#5aa2e6;">DPS: {dps_str}</div>',
     ]
+    source_badge = ""
+    if show_source:
+        source = sources.source_from_record(record)
+        source_badge = (
+            '<span style="background:#3a6ea5;color:#fff;padding:1px 6px;'
+            'border-radius:4px;font-size:11px;">'
+            + html.escape(sources.source_label(source)) + '</span>'
+        )
     id_part = (
-        f'<div style="font-size:12px;color:#777;">'
-        f'{html.escape(str(record.get("_id", "")))}</div>'
+        '<div style="font-size:12px;color:#777;display:flex;'
+        'align-items:center;gap:6px;">'
+        + source_badge
+        + f'<span>{html.escape(str(record.get("_id", "")))}</span></div>'
     )
     if record.get("not_valid"):
         badge = (
@@ -199,26 +214,29 @@ def _apply_filters(records, sort_key, required, excluded, show_invalid):
 
 # --- Построение вкладки ----------------------------------------------------
 
-def build_wfpsim_tab(om):
-    """Строит содержимое вкладки «Wfpsim database» и возвращает описатель вкладки.
+def build_source_tab(
+    *,
+    db,
+    service,
+    objects_manager,
+    rebuild_records,
+    texts,
+    link_for_record,
+    show_source: bool = False,
+    elem_prefix: str = "wf",
+):
+    """Строит вкладку источника записей и возвращает описатель вкладки.
 
-    ``om`` — базовый менеджер объектов (objects.json). Вместе с ним используется
-    дополнительный менеджер wfpsim_objects.json через ``UnionObjectsManager``.
+    Один и тот же интерфейс используется для вкладок «Unofficial database» и
+    «Custom gcsim records». Параметры задают базу, сервис, менеджер объектов,
+    правило пересборки записей для DPS Leaders, тексты и формат ссылок.
 
     Возвращаемый словарь содержит:
       - refresh / refresh_inputs / refresh_outputs — первичное построение списка;
       - lang_outputs / update_lang — обновление подписей при смене языка.
     """
-    wdb = WfpsimDB()
-    service = WfpsimService()
-
-    # Объединённые списки: objects.json (базовый) + wfpsim_objects.json (дополнительный).
-    # Дополнительный файл не наследует содержимое objects.json — он заполняется
-    # только классификацией объектов из замеров Wfpsim.
-    extra_om = ObjectsManager(config.WFPSIM_OBJECTS_PATH, seed_from_default=False)
-    wom = UnionObjectsManager(om, extra_om)
-
-    char_choices = wom.all_characters()
+    wdb = db
+    char_choices = objects_manager.all_characters()
     # Число записей на странице выбирается пользователем (как во вкладке Simpact).
     PAGE_SIZE_CHOICES = [10, 20, 50]
     MAX_PAGE_SIZE = max(PAGE_SIZE_CHOICES)
@@ -235,17 +253,17 @@ def build_wfpsim_tab(om):
     wf_cls_items = gr.State([])
     wf_cls_page = gr.State(0)
 
-    gr.Markdown(i18n.t("wf_heading"))
+    gr.Markdown(i18n.t(texts["heading"]))
     with gr.Row():
         wf_add_btn = gr.Button(i18n.t("wf_add_btn"), variant="primary")
-        wf_status = gr.Markdown(i18n.t("wf_status_ready"))
+        wf_status = gr.Markdown(i18n.t(texts["status_ready"]))
 
     # Окно ввода ссылки (используется и для добавления, и для замены ссылки)
     with gr.Group(visible=False) as wf_dialog:
-        dialog_heading = gr.Markdown(i18n.t("wf_dialog_heading"))
+        dialog_heading = gr.Markdown(i18n.t(texts["dialog_heading"]))
         wf_url = gr.Textbox(
             label=i18n.t("wf_url_label"),
-            placeholder=i18n.t("wf_dialog_hint"),
+            placeholder=i18n.t(texts["dialog_hint"]),
         )
         with gr.Row():
             wf_continue_btn = gr.Button(i18n.t("wf_continue_btn"), variant="primary")
@@ -301,7 +319,9 @@ def build_wfpsim_tab(om):
             wf_cls_row_outputs += [row, img, name, dd]
         with gr.Row():
             wf_cls_prev_btn = gr.Button(i18n.t("cls_prev"), visible=False, size="sm")
-            wf_cls_nav_label = gr.Markdown("", elem_id="wf_cls_nav")
+            wf_cls_nav_label = gr.Markdown(
+                "", elem_id=f"{elem_prefix}_cls_nav"
+            )
             wf_cls_next_btn = gr.Button(i18n.t("cls_next"), visible=False, size="sm")
         wf_cls_apply_btn = gr.Button(i18n.t("cls_apply"), visible=False)
 
@@ -345,9 +365,9 @@ def build_wfpsim_tab(om):
 
     # --- Внутренние вспомогательные функции ---
 
-    def _rebuild_wf_records():
+    def _rebuild_records():
         """Пересобирает трансформированные записи для вкладки Genshin DPS Leaders."""
-        WfpsimRecords().rebuild(wom)
+        rebuild_records()
 
     def _build_current(sort_key, required, excluded, show_invalid, page_size, page):
         # Перечитываем базу с диска: изменения, внесённые в других вкладках
@@ -369,13 +389,13 @@ def build_wfpsim_tab(om):
         for idx in range(MAX_PAGE_SIZE):
             if idx < len(page_records):
                 rec = page_records[idx]
-                # Исходная ссылка на запись Wfpsim (сохранённая при добавлении/замене)
-                url = rec.get("wfpsim_url") or config.WFPSIM_SHARE_URL.format(
-                    record_id=rec.get("_id")
-                )
+                # Исходная ссылка на запись (сохранённая при добавлении/замене).
+                url = link_for_record(rec)
                 slot_updates += [
                     gr.update(visible=True),
-                    gr.update(value=_record_card_html(rec, service)),
+                    gr.update(value=_record_card_html(
+                        rec, service, show_source=show_source
+                    )),
                     gr.update(value=_more_html(url)),
                     gr.update(visible=True),
                     gr.update(visible=True),
@@ -461,7 +481,7 @@ def build_wfpsim_tab(om):
                 elif kind == "invalid":
                     changed = wdb.toggle_not_valid(rid)
             if changed:
-                _rebuild_wf_records()
+                _rebuild_records()
             return _refresh_tail(
                 sort_key, required, excluded, show_invalid, page_size, page
             )
@@ -493,7 +513,7 @@ def build_wfpsim_tab(om):
 
     def _scan_unknowns(record):
         """Возвращает список (тип, имя) неизвестных объектов в составе записи."""
-        collector = classifiers.UnknownCollector(wom)
+        collector = classifiers.UnknownCollector(objects_manager)
         collector.scan_record({"summary": {"team": record.get("team", [])}})
         return collector.items()
 
@@ -513,7 +533,7 @@ def build_wfpsim_tab(om):
         rid = service.extract_id(url or "")
         if not rid:
             return _error_return(
-                i18n.t("wf_err_url"), sort_key, required, excluded,
+                i18n.t(texts["err_url"]), sort_key, required, excluded,
                 show_invalid, page_size, page,
             )
 
@@ -521,12 +541,12 @@ def build_wfpsim_tab(om):
             record = service.fetch_and_build(rid, wfpsim_url=(url or "").strip())
         except NoResultsError:
             return _error_return(
-                i18n.t("wf_err_no_results"), sort_key, required, excluded,
+                i18n.t(texts["err_no_results"]), sort_key, required, excluded,
                 show_invalid, page_size, page,
             )
         except Exception as exc:  # noqa: BLE001
             return _error_return(
-                i18n.t("wf_err_fetch", error=str(exc)), sort_key, required, excluded,
+                i18n.t(texts["err_fetch"], error=str(exc)), sort_key, required, excluded,
                 show_invalid, page_size, page,
             )
 
@@ -557,7 +577,7 @@ def build_wfpsim_tab(om):
         else:
             wdb.add_or_update(record)
             msg = i18n.t("wf_added")
-        _rebuild_wf_records()
+        _rebuild_records()
         return (
             [gr.update(value=msg), gr.update(visible=False),
              None, None, None]
@@ -608,7 +628,7 @@ def build_wfpsim_tab(om):
                 weapon_map[name] = val
 
         # Записываем классификацию в wfpsim_objects.json (не в objects.json)
-        classifiers.apply_classifications(wom, char_map, weapon_map)
+        classifiers.apply_classifications(objects_manager, char_map, weapon_map)
 
         record = args[cls_size + 2]
         old_id = args[cls_size + 3]
@@ -623,7 +643,7 @@ def build_wfpsim_tab(om):
         if not record:
             return (
                 [gr.update(value=i18n.t(
-                    "wf_err_fetch",
+                    texts["err_fetch"],
                     error="no pending record after classification",
                 )), gr.update(visible=False), None, None, None]
                 + _refresh_tail(
@@ -638,7 +658,7 @@ def build_wfpsim_tab(om):
         else:
             msg = i18n.t("wf_added")
         wdb.add_or_update(record)
-        _rebuild_wf_records()
+        _rebuild_records()
 
         return (
             [gr.update(value=msg), gr.update(),
@@ -772,10 +792,10 @@ def build_wfpsim_tab(om):
         i18n.set_lang(lang)
         updates = [
             gr.update(value=i18n.t("wf_add_btn")),
-            gr.update(value=i18n.t("wf_dialog_heading")),
+            gr.update(value=i18n.t(texts["dialog_heading"])),
             gr.update(
                 label=i18n.t("wf_url_label"),
-                placeholder=i18n.t("wf_dialog_hint"),
+                placeholder=i18n.t(texts["dialog_hint"]),
             ),
             gr.update(value=i18n.t("wf_continue_btn")),
             gr.update(value=i18n.t("wf_cancel_btn")),
@@ -815,3 +835,31 @@ def build_wfpsim_tab(om):
         "lang_outputs": lang_outputs,
         "update_lang": update_lang,
     }
+
+
+def build_wfpsim_tab(om):
+    """Строит содержимое вкладки «Unofficial database»."""
+    # Объединённые списки: objects.json (базовый) + wfpsim_objects.json
+    # (дополнительный, заполняется только классификацией из замеров Wfpsim).
+    extra_om = ObjectsManager(config.WFPSIM_OBJECTS_PATH, seed_from_default=False)
+    wom = UnionObjectsManager(om, extra_om)
+    return build_source_tab(
+        db=WfpsimDB(),
+        service=WfpsimService(),
+        objects_manager=wom,
+        rebuild_records=lambda: WfpsimRecords().rebuild(wom),
+        texts={
+            "heading": "wf_heading",
+            "status_ready": "wf_status_ready",
+            "dialog_heading": "wf_dialog_heading",
+            "dialog_hint": "wf_dialog_hint",
+            "err_url": "wf_err_url",
+            "err_no_results": "wf_err_no_results",
+            "err_fetch": "wf_err_fetch",
+        },
+        link_for_record=lambda rec: rec.get("wfpsim_url") or sources.share_url(
+            sources.source_from_record(rec), rec.get("_id")
+        ),
+        show_source=True,
+        elem_prefix="wf",
+    )

@@ -15,6 +15,8 @@ class SimpactDownloader:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": "genshin-dps-leaders/1.0"})
+        self._default_image = None
+        self._default_checked = False
 
     # --- Выгрузка записей базы замеров ---
 
@@ -56,17 +58,63 @@ class SimpactDownloader:
 
     # --- Скачивание ассетов ---
 
+    def _default_image_bytes(self):
+        """Байты ``default.png`` (или None, если файла нет).
+
+        API Simpact для отсутствующих иконок возвращает HTTP 200 с содержимым
+        ``default.png``. Чтобы не плодить копии этого изображения под именами
+        недостающих ресурсов, сравниваем загруженные данные с локальным
+        ``default.png``.
+        """
+        if not self._default_checked:
+            self._default_checked = True
+            try:
+                self._default_image = config.DEFAULT_PNG.read_bytes()
+            except OSError:
+                self._default_image = None
+        return self._default_image
+
     def _download(self, folder, fname: str, url: str, force: bool = False):
-        """Скачивает файл, если его ещё нет (или при force=True). Возвращает путь."""
+        """Скачивает файл, если его ещё нет (или при force=True). Возвращает путь.
+
+        Если API вернул ``default.png`` (иконка отсутствует), файл не создаётся,
+        а возвращается ``None`` — вызывающая сторона подставит ``default.png``
+        для отображения.
+        """
         folder.mkdir(parents=True, exist_ok=True)
         path = folder / fname
+        default_data = self._default_image_bytes()
+
         if path.exists() and not force:
+            # Копии default.png, созданные прежними версиями, считаем
+            # отсутствующими и удаляем, чтобы кэш не засорялся.
+            if default_data is not None:
+                try:
+                    if path.read_bytes() == default_data:
+                        path.unlink()
+                        return None
+                except OSError:
+                    pass
             return path
+
         try:
             resp = self.session.get(url, timeout=config.DOWNLOAD_TIMEOUT)
             resp.raise_for_status()
-            path.write_bytes(resp.content)
         except Exception:
+            return None
+
+        content = resp.content
+        if default_data is not None and content == default_data:
+            if path.exists():
+                try:
+                    path.unlink()
+                except OSError:
+                    pass
+            return None
+
+        try:
+            path.write_bytes(content)
+        except OSError:
             return None
         return path
 
@@ -85,16 +133,23 @@ class SimpactDownloader:
 
 
 def member_assets(downloader: SimpactDownloader, member: dict, force: bool = False) -> dict:
-    """Скачивает и возвращает пути к ассетам персонажа."""
+    """Скачивает и возвращает пути к ассетам персонажа.
+
+    Для отсутствующих изображений возвращается путь к ``default.png``, чтобы
+    интерфейс показывал заглушку без создания копий под именами ресурсов.
+    """
     name = (member.get("name") or "").lower()
-    avatar = downloader.download_avatar(name, force)
+    avatar = downloader.download_avatar(name, force) or config.DEFAULT_PNG
 
     weapon = (member.get("weapon") or {}).get("name", "")
     weapon_path = downloader.download_weapon(weapon, force) if weapon else None
+    weapon_path = weapon_path or config.DEFAULT_PNG
 
     artifact_paths = []
     for set_name in (member.get("sets") or {}).keys():
-        artifact_paths.append(downloader.download_artifact(set_name, force))
+        artifact_paths.append(
+            downloader.download_artifact(set_name, force) or config.DEFAULT_PNG
+        )
 
     return {"avatar": avatar, "weapon": weapon_path, "artifacts": artifact_paths}
 
