@@ -12,14 +12,16 @@ import json
 from pathlib import Path
 
 from .. import config, filters, models
+from . import sources
 
 # Режимы фильтра «Источник» во вкладке Genshin DPS Leaders.
 MODE_GCSIM = "gcsim"
 MODE_WF_UNIQUE = "wf_unique"
 MODE_WF_ALL = "wf_all"
 
-# Значение поля ``source`` для записей, полученных из базы Wfpsim.
-SOURCE_WFPSIM = "wfpsim"
+# Значение поля ``source`` для записей, полученных из Unofficial database
+# (wfpsim и sim.kqm.gg ведут себя во вкладке Genshin DPS Leaders одинаково).
+SOURCE_WFPSIM = sources.SOURCE_WFPSIM
 
 
 def _comp_key(record):
@@ -35,14 +37,22 @@ def _comp_key(record):
     )
 
 
-def transform_record(rec, om):
-    """Преобразует запись Wfpsim в формат базы Simpact или возвращает ``None``.
+def transform_record(
+    rec,
+    om,
+    source: str = SOURCE_WFPSIM,
+    url_field: str = "wfpsim_url",
+):
+    """Преобразует запись источника в формат базы Simpact или возвращает ``None``.
 
     Применяются правила отбора, аналогичные записям базы Simpact: состав не
     менее 4 персонажей, уровень 90, наличие наборов артефактов, отсутствие
     запрещённого оружия и превышений cons. Правило длительности замера
-    (gcsim-specific) к записям Wfpsim не применяется, т.к. у них нет поля
-    ``sim_duration``.
+    (gcsim-specific) к записям Unofficial/Custom не применяется, т.к. у них нет
+    поля ``sim_duration``.
+
+    ``source`` — значение поля ``source`` в результате; ``url_field`` — имя поля
+    с исходной ссылкой (``wfpsim_url`` или ``gcsim_url``).
     """
     if rec.get("not_valid"):
         return None
@@ -58,7 +68,7 @@ def transform_record(rec, om):
     if filters._has_forbidden_cons(team, om):
         return None
 
-    return {
+    result = {
         "_id": rec.get("_id"),
         "mean_dps_per_target": rec.get("mean_dps_per_target", 0),
         "names": sorted(str(m.get("name", "")).lower() for m in team),
@@ -66,15 +76,28 @@ def transform_record(rec, om):
         "team": team,
         "description": rec.get("description", ""),
         "flags": filters.compute_flags(team, om),
-        "source": SOURCE_WFPSIM,
-        "wfpsim_url": rec.get("wfpsim_url"),
+        "source": source,
         "created_at": rec.get("created_at"),
     }
+    result[url_field] = rec.get(url_field)
+    return result
 
 
-def transform_records(records, om):
-    """Преобразует список записей Wfpsim, отбрасывая непригодные."""
-    return [r for r in (transform_record(rec, om) for rec in (records or [])) if r]
+def transform_records(
+    records,
+    om,
+    source: str = SOURCE_WFPSIM,
+    url_field: str = "wfpsim_url",
+):
+    """Преобразует список записей источника, отбрасывая непригодные."""
+    return [
+        r
+        for r in (
+            transform_record(rec, om, source=source, url_field=url_field)
+            for rec in (records or [])
+        )
+        if r
+    ]
 
 
 def union_objects_manager(base_om):

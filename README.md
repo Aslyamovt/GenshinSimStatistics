@@ -1,17 +1,18 @@
 # ⚙️ Genshin Sim Statistics
 
-A **Python + Gradio** application that combines two tools for working with *Genshin
+A **Python + Gradio** application that combines three tools for working with *Genshin
 Impact* damage measurements in one interface:
 
 1. **Genshin DPS Leaders** — a leaderboard of teams sorted by damage per second (DPS),
    with list filtering support. Data is fetched from the [Simpact](https://simpact.app)
    database.
-2. **Wfpsim database** — local storage and management of damage measurements from the
-   [Wfpsim](https://wfpsim.com) service (an unofficial fork of gcsim, which uses the
-   Simpact database as part of its ecosystem).
+2. **Unofficial database** — local storage and management of damage measurements from
+   unofficial services: [Wfpsim](https://wfpsim.com) and
+   [sim.kqm.gg](https://sim.kqm.gg).
+3. **Custom gcsim records** — a separate local database of user-added gcsim records.
 
 The interface supports **Russian** and **English** languages, selectable globally for
-both tabs.
+all tabs.
 
 ## Features
 
@@ -37,28 +38,38 @@ both tabs.
 - Character filters: required and excluded.
 - Source filter — which records to display in the leaderboard:
   - **Only gcsim** — only Simpact records;
-  - **Wfpsim for unique** — Simpact records plus Wfpsim records that have no match
-    (same characters and `cons`) in the local Simpact database;
-  - **Wfpsim for all** — Simpact records, unique Wfpsim records, and for compositions
-    present in both sources the record with the higher DPS is shown.
-- Team cards with DPS, images, and a link to details on gcsim/wfpsim.
-- Records from the Wfpsim database are marked with a red **wfpsim** label and have a
-  **Mark as invalid** button below the card. Pressing it sets `not_valid = True` for the
-  record, so it immediately disappears from the leaderboard (and, if "Wfpsim for all" is
-  active and there was a lower-damage gcsim analog, that analog is shown instead).
+  - **Unofficial for unique** — Simpact records plus Unofficial records that have no
+    match (same characters and `cons`) in the local Simpact database;
+  - **Unofficial for all** — Simpact records, unique Unofficial records, and for
+    compositions present in both sources the record with the higher DPS is shown.
+- Team cards with DPS, images, and a link to details on gcsim/sim.
+- Records from the Unofficial database are marked with a red **unofficial** label and
+  have a **Mark as invalid** button below the card. Pressing it sets `not_valid = True`
+  for the record, so it immediately disappears from the leaderboard (and, if
+  "Unofficial for all" is active and there was a lower-damage gcsim analog, that analog
+  is shown instead).
+- Records from Custom gcsim records are treated as equivalent to Simpact records and are
+  shown for any source. They have no warning label but also provide the
+  **Mark as invalid** button. If Simpact and Custom gcsim contain the same team
+  composition (characters and `cons`), the record with the higher DPS is shown.
 - Pagination of the list (10/20/50 teams per page).
 
-### Wfpsim database
+### Unofficial database
 
 - A separate local database `cache/wfpsim_db.json` (never mixed with the Simpact
-  database).
-- **Add new record** — opens a dialog where you enter a link in the format
-  `https://wfpsim.com/sh/{ID}` and press **Continue**. The app then fetches JSON from
-  `https://wfpsim.com/api/share/{ID}`.
-  - If the record has no damage measurement results in the Wfpsim database, a message
+  database). Records from both unofficial sources are stored in the same file.
+- **Add new record** — opens a dialog where you enter a link in one of the formats:
+  `https://wfpsim.com/sh/{ID}` or `https://sim.kqm.gg/sh/{ID}`, then press **Continue**.
+  The source is detected automatically from the link, and JSON is fetched from
+  `https://wfpsim.com/api/share/{ID}` or `https://sim.kqm.gg/api/share/{ID}` respectively.
+  - If the record has no damage measurement results in the source database, a message
     is shown.
   - Otherwise, the JSON is converted to the same record format used by Simpact, the
     `config` field is stored additionally, and the record is saved to the local database.
+  - The link is stored in the existing `wfpsim_url` field, so old databases remain
+    compatible. Records without a link (old databases) are treated as wfpsim records.
+  - The record source (`wfpsim` or `sim.kqm.gg`) is shown on the card. All card actions
+    are available for both sources.
 - Measurement cards showing: average DPS, character names, character avatars, weapon
   icons, artifact set icons, `cons` values, and weapon `refine` values.
 - Card actions:
@@ -75,18 +86,35 @@ both tabs.
   of required characters and a set of excluded characters. Filtering uses the combined
   character lists of `cache/objects.json` and `cache/wfpsim_objects.json`.
 - The **Show invalid** checkbox toggles whether records with `not_valid = True` are shown.
-- Valid Wfpsim records are automatically transformed to the Simpact record format and
-  stored in a separate file `cache/wfpsim_records.json` (distinct from both
+- Valid Unofficial records are automatically transformed to the Simpact record format
+  and stored in a separate file `cache/wfpsim_records.json` (distinct from both
   `cache/local_db.json` and `cache/wfpsim_db.json`). Adding/replacing/deleting or
-  toggling validity of a Wfpsim record immediately updates the Genshin DPS Leaders tab.
+  toggling validity of an Unofficial record immediately updates the Genshin DPS Leaders
+  tab.
 - When adding/replacing a record, if it contains characters or weapons that are missing
   from the combined classification lists, a classification panel opens (analogous to the
   one in Genshin DPS Leaders). The results are written to a separate file
   `cache/wfpsim_objects.json` with the same structure as `objects.json`, so the base
   `objects.json` is never modified by Wfpsim data.
 - Artifact set icons, character avatars, and weapon icons are first checked in the
-  local cache, then fetched from the Simpact database (Wfpsim has no asset store of its
-  own). If an artifact is missing from Simpact, `cache/default.png` is used instead.
+  local cache, then fetched from the Simpact database (Unofficial services have no
+  asset store of their own). If an artifact is missing from Simpact,
+  `cache/default.png` is used instead.
+
+### Custom gcsim records
+
+- A separate local database `cache/custom_gcsim_db.json` with the same record format as
+  the Unofficial database.
+- **Add new record** — enter a link in the format `https://gcsim.app/sh/{ID}` and press
+  **Continue**. JSON is fetched from `https://gcsim.app/api/share/{ID}`.
+- The interface and card actions are the same as in the Unofficial database: sorting,
+  required/excluded characters, **Show invalid**, page size, pagination, and the
+  **Details on sim**, **Replace sim link**, **Delete measurement**, **Toggle validity
+  status**, and **Copy config** buttons.
+- Classification of unknown characters and weapons uses the shared `cache/objects.json`
+  (no separate objects file is created).
+- Valid records are transformed to the Simpact format and stored in
+  `cache/custom_gcsim_records.json`; they immediately appear in Genshin DPS Leaders.
 
 ## Installation
 
@@ -110,14 +138,51 @@ No Python installation is required to run the built app:
 
 1. Take the `GenshinSimStatistics.exe` file from the repository root.
 2. Put it in a folder of your choice (it should be placed together with `objects.json`,
-   `README.md` and `LICENSE`, which `build.py` places next to the `.exe`).
+   `config.json`, `README.md` and `LICENSE`, which `build.py` places next to the `.exe`).
 3. Double-click `GenshinSimStatistics.exe` (or run it from the command line). A console
    window opens, and then the Gradio interface launches in the browser at the address
    printed in the console (default `http://127.0.0.1:7860`).
 
 On first run the app creates the `cache/` directory and the local databases
-(`cache/local_db.json` for Simpact and `cache/wfpsim_db.json` for Wfpsim) next to the
-executable, storing all downloaded images there.
+(`cache/local_db.json` for Simpact, `cache/wfpsim_db.json` for Unofficial and
+`cache/custom_gcsim_db.json` for Custom gcsim records) next to the executable, storing
+all downloaded images there.
+
+## Configuration (`config.json`)
+
+All values from `genshin_dps/config.py` can be overridden through the external
+`config.json` file. It is read from the folder that contains the executable (for the
+built `.exe`) or from the repository root (when running from sources). The file is
+shipped next to the `.exe` by `build.py`, so settings keep working after the build.
+
+The format is a flat JSON object whose keys match the variable names in `config.py`.
+A missing key keeps its default value. Example:
+
+```json
+{
+  "APP_NAME": "Genshin Sim Statistics",
+  "CACHE_DIR": "cache",
+  "DB_PATH": "local_db.json",
+  "PAGE_SIZE": 200,
+  "REQUEST_TIMEOUT": 60,
+  "PAGE_DELAY": 0.3,
+  "MIN_SIM_DURATION": 47.0,
+  "API_DB_URL": "https://simpact.app/api/db"
+}
+```
+
+Path rules:
+
+- an absolute path is used as is;
+- a bare file name such as `"local_db.json"` is placed inside the default parent
+  directory (`CACHE_DIR` for cache files, the application folder for
+  `DEFAULT_OBJECTS_PATH`);
+- a path with directories such as `"data/db.json"` is resolved relative to the
+  application folder.
+
+`ASSET_DIRS` and `ALL_LISTS` are derived values: they are recomputed from
+`AVATARS_DIR`/`WEAPONS_DIR`/`ARTIFACTS_DIR` and `CHARACTER_LISTS`/`WEAPON_LISTS`
+unless explicitly set in `config.json`.
 
 ## Updating data (Genshin DPS Leaders)
 
@@ -145,7 +210,8 @@ The script uses [PyInstaller](https://pyinstaller.org/) (installed automatically
 and:
 
 - builds the executable into the repository root folder as `GenshinSimStatistics.exe`;
-- ensures the runtime data needed to launch the service (`objects.json`, `README.md`,
+- ensures the runtime data needed to launch the service (`objects.json`, `config.json`,
+  `README.md`,
   `LICENSE`) are present next to the `.exe`;
 - removes build auxiliary artifacts (the `build/` and `dist/` folders and the generated
   `.spec` file).
@@ -171,17 +237,26 @@ genshin_dps/
   html_utils.py               # shared HTML helpers (data-URI images, DPS formatting)
   classifier_ui.py            # shared classification panel helpers
   ui.py                       # Gradio interface (tabs, global language)
-  wfpsim/                     # Wfpsim database module
-    models.py                 # Wfpsim JSON -> local record conversion
-    db.py                     # Wfpsim local database (separate file)
-    service.py                # Wfpsim API requests + asset fallback to Simpact
-    records.py                # Wfpsim -> Simpact record transform + merge for DPS tab
-    ui.py                     # Wfpsim tab interface
+  wfpsim/                     # Unofficial database module
+    sources.py                # wfpsim / sim.kqm.gg source detection and URLs
+    models.py                 # source JSON -> local record conversion
+    db.py                     # Unofficial local database (separate file)
+    service.py                # source API requests + asset fallback to Simpact
+    records.py                # Unofficial -> Simpact record transform + merge for DPS tab
+    ui.py                     # generic source tab builder + Unofficial tab wrapper
+  custom_gcsim/               # Custom gcsim records module
+    models.py                 # gcsim JSON -> local record conversion
+    db.py                     # Custom gcsim local database (separate file)
+    service.py                # gcsim API requests
+    records.py                # Custom gcsim -> Simpact record transform
+    ui.py                     # Custom gcsim tab wrapper
 cache/                        # local databases, images and objects
   local_db.json               # Simpact database
-  wfpsim_db.json              # Wfpsim database
-  wfpsim_records.json         # transformed Wfpsim records for Genshin DPS Leaders
-  objects.json                # base classification lists
-  wfpsim_objects.json         # Wfpsim classifications (same structure as objects.json)
+  wfpsim_db.json              # Unofficial database (wfpsim + sim.kqm.gg)
+  wfpsim_records.json         # transformed Unofficial records for Genshin DPS Leaders
+  custom_gcsim_db.json        # Custom gcsim database
+  custom_gcsim_records.json   # transformed Custom gcsim records for DPS Leaders
+  objects.json                # base classification lists (shared by all tabs)
+  wfpsim_objects.json         # Unofficial classifications (same structure as objects.json)
   avatars/  weapons/  artifacts/
   default.png                 # fallback image for missing artifacts

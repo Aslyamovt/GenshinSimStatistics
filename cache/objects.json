@@ -17,7 +17,6 @@
         "nahida",
         "neuvillette",
         "nicole",
-        "raiden",
         "skirk",
         "varesa",
         "varka",
@@ -27,11 +26,13 @@
         "zhongli",
         "kaedeharakazuha",
         "raidenshogun",
-        "flins"
+        "flins",
+        "odette",
+        "sandrone",
+        "zibai"
     ],
     "old_event_leg_names_list": [
         "albedo",
-        "ayaka",
         "ayato",
         "baizhu",
         "chiori",
@@ -57,7 +58,6 @@
         "xiao",
         "yaemiko",
         "yoimiya",
-        "yumemizukimizuki",
         "aratakiitto",
         "kamisatoayaka",
         "kamisatoayato",
@@ -70,7 +70,8 @@
         "keqing",
         "mona",
         "qiqi",
-        "tighnari"
+        "tighnari",
+        "yumemizukimizuki"
     ],
     "epic_names_list": [
         "aetheranemo",
@@ -129,7 +130,12 @@
         "xinyan",
         "yanfei",
         "yaoyao",
-        "yunjin"
+        "yunjin",
+        "ifa",
+        "jahoda",
+        "luminecryo",
+        "prune",
+        "illuga"
     ],
     "leg_weapons_list": [
         "angelosheptades",
@@ -196,7 +202,8 @@
         "fracturedhalo",
         "nightweaverslookingglass",
         "nocturnescurtaincall",
-        "reliquaryoftruth"
+        "reliquaryoftruth",
+        "gestofthemightywolf"
     ],
     "bp_or_event_weapons_list": [
         "xiphosmoonlight",
@@ -223,7 +230,9 @@
         "wanderingevenstar",
         "wavebreakersfin",
         "wolffang",
-        "sacrificersstaff"
+        "sacrificersstaff",
+        "dawningfrost",
+        "jadevista"
     ],
     "epic_weapons_list": [
         "dragonsbane",
@@ -310,6 +319,10 @@
         "ultimateoverlordsmegamagicsword",
         "whiteblind",
         "whitetassel",
-        "windblumeode"
+        "windblumeode",
+        "echoesoftheheart",
+        "emberwell",
+        "exaiphanesblade",
+        "silverlight"
     ]
 }

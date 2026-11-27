@@ -25,10 +25,12 @@ APP_NAME = "GenshinSimStatistics"
 # Данные, которые должны лежать рядом с исполняемым файлом при запуске.
 # objects.json хранится в cache/; перед сборкой его копия размещается рядом с .exe,
 # чтобы при первом запуске приложение заполнило cache/objects.json (см. config).
-RUNTIME_DATA = ["objects.json", "README.md", "LICENSE"]
+# config.json — внешний файл настроек, читается приложением рядом с .exe.
+RUNTIME_DATA = ["objects.json", "config.json", "README.md", "LICENSE"]
 
 # Источник классификационных списков для копирования рядом с .exe.
 OBJECTS_SOURCE = ROOT / "cache" / "objects.json"
+
 
 # Служебные папки PyInstaller
 WORK_DIR = ROOT / "build"
@@ -88,6 +90,22 @@ def _run_pyinstaller() -> None:
     subprocess.run(cmd, check=True, cwd=str(ROOT))
 
 
+def _ensure_config_file() -> None:
+    """Гарантирует наличие внешнего config.json рядом с .exe.
+
+    Приложение читает ``config.json`` из папки исполняемого файла, поэтому файл
+    должен лежать в корне репозитория (рядом с итоговым ``.exe``). Если файла
+    нет, создаём минимальный пустой объект: приложение будет работать на
+    значениях по умолчанию, а файл можно будет заполнить вручную (см. README).
+    """
+    dest = ROOT / "config.json"
+    if dest.exists():
+        print(f"[build] Конфигурация рядом с exe: {dest}")
+        return
+    print("[build] Предупреждение: config.json не найден, создаю пустой шаблон")
+    dest.write_text("{}\n", encoding="utf-8")
+
+
 def _ensure_runtime_data() -> None:
     """Гарантирует наличие данных для запуска рядом с .exe в корне."""
     # objects.json перенесён в cache/; для .exe создаём его копию в корне,
@@ -96,8 +114,8 @@ def _ensure_runtime_data() -> None:
     if OBJECTS_SOURCE.exists():
         if not objects_dest.exists() or OBJECTS_SOURCE.stat().st_mtime > objects_dest.stat().st_mtime:
             print(f"[build] Копирую objects.json из {OBJECTS_SOURCE}")
-            import shutil
             shutil.copy2(OBJECTS_SOURCE, objects_dest)
+    _ensure_config_file()
     for name in RUNTIME_DATA:
         src = ROOT / name
         if src.exists():

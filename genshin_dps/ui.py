@@ -31,10 +31,13 @@ from .classifier_ui import (
     row_reset_updates as _row_reset_updates,
     row_updates as _row_updates,
 )
+from .custom_gcsim import records as custom_gcsim_records
+from .custom_gcsim import ui as custom_gcsim_ui
 from .db import LocalDB
 from .downloader import SimpactDownloader
 from .objects_manager import ObjectsManager
 from .wfpsim import records as wfpsim_records
+from .wfpsim import sources as wfpsim_sources
 from .wfpsim import ui as wfpsim_ui
 
 APP_CSS = """
@@ -116,14 +119,21 @@ def format_dps(value) -> str:
 def record_card_html(record, dl: SimpactDownloader, invalid_id: str = None) -> str:
     """Строит HTML-карточку отряда с изображениями, cons/refine и ссылкой.
 
-    Для записей из Wfpsim database добавляется красная надпись «wfpsim»
-    (по стилю аналогична метке «not valid»), ссылка ведёт на Wfpsim, а под ней
-    располагается кнопка «Сделать невалидной» (``invalid_id`` — elem_id скрытой
-    Gradio-кнопки, по которой выполняется клик).
+    Для записей из Unofficial database добавляется красная надпись «unofficial»
+    (по стилю аналогична метке «not valid»), ссылка ведёт на исходный сервис.
+    Для записей из Custom gcsim records маркер не добавляется. В обоих случаях
+    под ссылкой располагается кнопка «Сделать невалидной» (``invalid_id`` —
+    elem_id скрытой Gradio-кнопки, по которой выполняется клик).
     """
     is_wf = record.get("source") == wfpsim_records.SOURCE_WFPSIM
+    is_custom = record.get("source") == custom_gcsim_records.SOURCE_CUSTOM_GCSIM
     if is_wf:
-        url = record.get("wfpsim_url") or config.WFPSIM_SHARE_URL.format(
+        url = record.get("wfpsim_url") or wfpsim_sources.share_url(
+            wfpsim_sources.source_from_record(record), record.get("_id", "")
+        )
+        more_link = i18n.t("wf_link_more")
+    elif is_custom:
+        url = record.get("gcsim_url") or config.GCSIM_SHARE_URL.format(
             record_id=record.get("_id", "")
         )
         more_link = i18n.t("wf_link_more")
@@ -139,7 +149,7 @@ def record_card_html(record, dl: SimpactDownloader, invalid_id: str = None) -> s
     if is_wf:
         badge = (
             '<span style="background:#c0392b;color:#fff;padding:2px 8px;'
-            'border-radius:4px;font-weight:bold;font-size:12px;">wfpsim</span>'
+            'border-radius:4px;font-weight:bold;font-size:12px;">unofficial</span>'
         )
         dps_title = (
             '<div style="display:flex;align-items:center;gap:8px;">'
@@ -152,7 +162,7 @@ def record_card_html(record, dl: SimpactDownloader, invalid_id: str = None) -> s
         f'<a href="{url}" target="_blank" style="text-decoration:none;background:#1f6fb2;'
         f'color:#fff;padding:8px 14px;border-radius:6px;">{more_link}</a>'
     )
-    if is_wf and invalid_id:
+    if (is_wf or is_custom) and invalid_id:
         right += (
             f'<a href="javascript:void(0)" '
             f'onclick="document.getElementById(\'{invalid_id}\').click(); return false;" '
@@ -295,15 +305,30 @@ def _filter_by_flags_and_chars(records, filter_set, required, excluded):
     return [r for r in records if passes(r)]
 
 
-def _merged_filtered(ldb, om, wf_records, filter_set, source_mode, required, excluded):
-    """Объединяет записи Simpact и Wfpsim после применения всех фильтров."""
-    ldb_filtered = _filter_by_flags_and_chars(
-        ldb.sorted_records(), filter_set, required, excluded
+def _merged_filtered(
+    ldb,
+    om,
+    wf_records,
+    custom_records,
+    filter_set,
+    source_mode,
+    required,
+    excluded,
+):
+    """Объединяет записи Simpact/Custom gcsim и Unofficial после фильтров.
+
+    Записи Custom gcsim считаются эквивалентными записям Simpact и входят в
+    левую часть merge для любого источника. При совпадении состава выбирается
+    запись с большим ``mean_dps_per_target`` (это выполняет ``merge_sources``).
+    """
+    base_records = list(ldb.sorted_records()) + list(custom_records or [])
+    base_filtered = _filter_by_flags_and_chars(
+        base_records, filter_set, required, excluded
     )
     wf_filtered = _filter_by_flags_and_chars(
         wf_records, filter_set, required, excluded
     )
-    return wfpsim_records.merge_sources(ldb_filtered, wf_filtered, source_mode)
+    return wfpsim_records.merge_sources(base_filtered, wf_filtered, source_mode)
 
 
 def _slot_record(records, page, page_size, slot_idx):
@@ -321,18 +346,29 @@ def _slot_record(records, page, page_size, slot_idx):
 # Обработчики событий
 # ---------------------------------------------------------------------------
 
-def make_handlers(om, ldb, dl, slots, wf_records_obj, cls_rows=None):
+def make_handlers(
+    om,
+    ldb,
+    dl,
+    slots,
+    wf_records_obj,
+    cls_rows=None,
+    custom_records_obj=None,
+):
     """Возвращает словарь функций-обработчиков, замыкающих состояние."""
     cls_assign = {}
     cls_map = {}
     size = len(cls_rows or [])
 
     def handle_refresh(filter_set, source_mode, required, excluded, page, page_size):
-        # Перечитываем трансформированные записи Wfpsim (обновляются сразу после
-        # изменений во вкладке Wfpsim database).
+        # Перечитываем трансформированные записи Unofficial и Custom gcsim
+        # (обновляются сразу после изменений в соответствующих вкладках).
         wf_records_obj.load()
+        if custom_records_obj is not None:
+            custom_records_obj.load()
+        custom_records = custom_records_obj.records if custom_records_obj else []
         records = _merged_filtered(
-            ldb, om, wf_records_obj.records,
+            ldb, om, wf_records_obj.records, custom_records,
             filter_set, source_mode, required, excluded,
         )
         total = len(records)
@@ -371,21 +407,34 @@ def make_handlers(om, ldb, dl, slots, wf_records_obj, cls_rows=None):
     def make_invalid(slot_idx):
         def inner(filter_set, source_mode, required, excluded, page, page_size, records):
             rec = _slot_record(records, page, page_size, slot_idx)
-            if rec and rec.get("source") == wfpsim_records.SOURCE_WFPSIM:
-                from .wfpsim.db import WfpsimDB
+            if rec:
+                source = rec.get("source")
+                if source == wfpsim_records.SOURCE_WFPSIM:
+                    from .wfpsim.db import WfpsimDB
 
-                wdb = WfpsimDB()
-                for r in wdb.records:
-                    if r.get("_id") == rec.get("_id"):
-                        r["not_valid"] = True
-                        wdb.save()
-                        break
-                # Пересобираем с объединённым менеджером объектов (objects.json +
-                # wfpsim_objects.json), как при первичном построении и во вкладке
-                # Wfpsim database. Иначе персонажи, известные только в
-                # wfpsim_objects.json, классифицируются неверно и флаги наборов
-                # фильтров (например, ftp) вычисляются ошибочно.
-                wf_records_obj.rebuild(wfpsim_records.union_objects_manager(om))
+                    wdb = WfpsimDB()
+                    for r in wdb.records:
+                        if r.get("_id") == rec.get("_id"):
+                            r["not_valid"] = True
+                            wdb.save()
+                            break
+                    # Пересобираем с объединённым менеджером объектов
+                    # (objects.json + wfpsim_objects.json), как при первичном
+                    # построении и во вкладке Unofficial database.
+                    wf_records_obj.rebuild(wfpsim_records.union_objects_manager(om))
+                elif (
+                    source == custom_gcsim_records.SOURCE_CUSTOM_GCSIM
+                    and custom_records_obj is not None
+                ):
+                    from .custom_gcsim.db import CustomGcsimDB
+
+                    cdb = CustomGcsimDB()
+                    for r in cdb.records:
+                        if r.get("_id") == rec.get("_id"):
+                            r["not_valid"] = True
+                            cdb.save()
+                            break
+                    custom_records_obj.rebuild(om)
             return handle_refresh(
                 filter_set, source_mode, required, excluded, page, page_size
             )
@@ -548,10 +597,12 @@ def _build_dps_tab(om, ldb, dl, char_choices):
                 cls_next_btn = gr.Button(i18n.t("cls_next"), visible=False, size="sm")
             apply_btn = gr.Button(i18n.t("cls_apply"), visible=False)
 
-        # Трансформированные записи Wfpsim (читаются из отдельного файла)
+        # Трансформированные записи Unofficial (читаются из отдельного файла)
         wf_records_obj = wfpsim_records.WfpsimRecords()
+        # Трансформированные записи Custom gcsim (отдельный файл)
+        custom_records_obj = custom_gcsim_records.CustomGcsimRecords()
         # Персонажи из objects.json и объединение с wfpsim_objects.json
-        # (для фильтров «Обязательные/Исключённые» при источнике Wfpsim).
+        # (для фильтров «Обязательные/Исключённые» при источнике Unofficial).
         wf_char_choices = sorted(
             set(wfpsim_records.union_objects_manager(om).all_characters())
         )
@@ -617,7 +668,9 @@ def _build_dps_tab(om, ldb, dl, char_choices):
         records_state = gr.State([])
 
         # Обработчики зависят от динамически созданных строк классификации и слотов
-        handlers = make_handlers(om, ldb, dl, slots, wf_records_obj, cls_rows)
+        handlers = make_handlers(
+            om, ldb, dl, slots, wf_records_obj, cls_rows, custom_records_obj
+        )
 
         with gr.Row():
             prev_btn = gr.Button(i18n.t("prev_btn"))
@@ -777,11 +830,13 @@ def build_demo():
     ldb = LocalDB()
     dl = SimpactDownloader()
 
-    # Пересобираем трансформированные записи Wfpsim на старте (если они ещё не
-    # были построены или база Wfpsim менялась вне сессии).
+    # Пересобираем трансформированные записи Unofficial на старте (если они ещё
+    # не были построены или база Unofficial менялась вне сессии).
     wfpsim_records.WfpsimRecords().rebuild(
         wfpsim_records.union_objects_manager(om)
     )
+    # Пересобираем трансформированные записи Custom gcsim на старте.
+    custom_gcsim_records.CustomGcsimRecords().rebuild(om)
 
     char_choices = sorted(set(om.all_characters()))
     lang_choices = [(i18n.LANG_LABELS[k], k) for k in i18n.LANGUAGES]
@@ -798,28 +853,50 @@ def build_demo():
         )
 
         with gr.Tabs():
-            with gr.Tab(i18n.t("tab_dps")):
+            with gr.Tab(i18n.t("tab_dps")) as dps_tab_item:
                 dps_tab = _build_dps_tab(om, ldb, dl, char_choices)
             with gr.Tab(i18n.t("tab_wfpsim")):
                 wf_tab = wfpsim_ui.build_wfpsim_tab(om)
+            with gr.Tab(i18n.t("tab_custom_gcsim")):
+                custom_tab = custom_gcsim_ui.build_custom_gcsim_tab(om)
 
-        # Первичное построение обеих вкладок
+        # Первичное построение всех вкладок
         demo.load(
             dps_tab["refresh"], dps_tab["refresh_inputs"], dps_tab["refresh_outputs"]
         )
         demo.load(
             wf_tab["refresh"], wf_tab["refresh_inputs"], wf_tab["refresh_outputs"]
         )
+        demo.load(
+            custom_tab["refresh"],
+            custom_tab["refresh_inputs"],
+            custom_tab["refresh_outputs"],
+        )
+
+        # При переходе на вкладку Genshin DPS Leaders перечитываем
+        # трансформированные записи Unofficial/Custom, чтобы изменения,
+        # сделанные в других вкладках, отображались сразу без перезагрузки.
+        dps_tab_item.select(
+            dps_tab["refresh"],
+            dps_tab["refresh_inputs"],
+            dps_tab["refresh_outputs"],
+        )
 
         # Смена языка (общий выбор для всего интерфейса)
-        lang_outputs = [subtitle] + dps_tab["lang_outputs"] + wf_tab["lang_outputs"]
+        lang_outputs = (
+            [subtitle]
+            + dps_tab["lang_outputs"]
+            + wf_tab["lang_outputs"]
+            + custom_tab["lang_outputs"]
+        )
 
         def handle_language(lang):
-            """Переключает язык и возвращает обновления подписей обеих вкладок."""
+            """Переключает язык и возвращает обновления подписей всех вкладок."""
             i18n.set_lang(lang)
             updates = [gr.update(value=i18n.t("app_subtitle"))]
             updates += dps_tab["update_lang"](lang)
             updates += wf_tab["update_lang"](lang)
+            updates += custom_tab["update_lang"](lang)
             return updates
 
         language.change(
@@ -830,6 +907,10 @@ def build_demo():
             dps_tab["refresh"], dps_tab["refresh_inputs"], dps_tab["refresh_outputs"]
         ).then(
             wf_tab["refresh"], wf_tab["refresh_inputs"], wf_tab["refresh_outputs"]
+        ).then(
+            custom_tab["refresh"],
+            custom_tab["refresh_inputs"],
+            custom_tab["refresh_outputs"],
         )
 
     return demo
